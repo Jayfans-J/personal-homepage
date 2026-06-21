@@ -382,6 +382,19 @@ h1 {
   margin-bottom: 10px;
 }
 
+.project-title-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: rgba(15, 95, 86, 0.28);
+  text-underline-offset: 5px;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.project-title-link:hover {
+  color: var(--green);
+  text-decoration-color: var(--green);
+}
+
 .timeline-item p {
   margin-bottom: 10px;
 }
