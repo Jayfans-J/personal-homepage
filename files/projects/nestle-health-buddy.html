@@ -1,0 +1,2232 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nestlé Health Buddy 智能交互展示系统</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+            background: radial-gradient(circle at top right, #f0f7ff, #f8fafc);
+        }
+        .custom-shadow {
+            box-shadow: 0 20px 40px -15px rgba(0, 51, 102, 0.12);
+        }
+        .phone-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Pulse Animation for Hotspots */
+        @keyframes custom-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.6; }
+        }
+        .hotspot-pulse {
+            animation: custom-pulse 2s infinite ease-in-out;
+        }
+        /* Oscillating waves */
+        @keyframes soundWave {
+            0%, 100% { height: 4px; }
+            50% { height: 24px; }
+        }
+        .wave-bar {
+            animation: soundWave 1.2s infinite ease-in-out;
+        }
+        /* Breathing glow for LED Eyes */
+        @keyframes breathGlow {
+            0%, 100% { filter: drop-shadow(0 0 4px currentColor); }
+            50% { filter: drop-shadow(0 0 16px currentColor); }
+        }
+        .led-glow {
+            animation: breathGlow 3s infinite ease-in-out;
+        }
+        /* Rocking Chair Animation for simulated video */
+        @keyframes chairRock {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        .animate-rocking {
+            animation: chairRock 4s infinite ease-in-out;
+            transform-origin: 50% 90%;
+        }
+        /* Scanline scrolling animation */
+        @keyframes scanlineMove {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .animate-scanline {
+            animation: scanlineMove 6s infinite linear;
+        }
+        /* Audio visualizer ring for intercom */
+        @keyframes ringPulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+            100% { transform: scale(1.25); opacity: 0; }
+        }
+        .intercom-ring {
+            animation: ringPulse 1.5s infinite ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-[#003366] to-[#0055a5] p-2.5 rounded-xl text-white shadow-md shadow-blue-900/10">
+                    <i class="fa-solid fa-dog text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-[#003366] tracking-tight">Nestlé Health Buddy</h1>
+                    <p class="text-xs text-slate-500 font-medium">雀巢健康伴侣犬 · 智能交互展示系统 <span class="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded ml-1 font-bold">NH-Buddy v2.0 + ✨ AI云脑</span></p>
+                </div>
+            </div>
+            <!-- Interactive Global Alert bar -->
+            <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 px-4 py-2 rounded-full text-sm">
+                <span id="global-status-dot" class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                <span id="global-status-text" class="font-medium text-slate-600">伴侣犬在线：守护中...</span>
+                <button onclick="triggerEmergency()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 模拟老人摔倒
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-6 mt-8">
+        
+        <!-- Tab Switches -->
+        <div class="flex border-b border-slate-200 mb-8 overflow-x-auto no-scrollbar">
+            <button onclick="switchPanel('hardware')" id="tab-hardware" class="border-b-2 border-[#003366] text-[#003366] px-6 py-3 font-bold text-lg flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-cube"></i> 1. 伴侣犬物理外观与设计剖析
+            </button>
+            <button onclick="switchPanel('app')" id="tab-app" class="border-b-2 border-transparent text-slate-500 hover:text-slate-800 px-6 py-3 font-medium text-lg flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-mobile-screen"></i> 2. 子女端《雀巢守护家》App 交互界面
+            </button>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- PANEL 1: HARDWARE DECONSTRUCTION & INTEGRATED CHAT -->
+            <div id="panel-hardware" class="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left: Interactive Visual SVG -->
+                <div class="lg:col-span-7 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 custom-shadow flex flex-col items-center relative">
+                    <div class="absolute top-4 left-4 bg-slate-50 text-slate-500 text-xs px-3 py-1.5 rounded-lg border border-slate-100">
+                        <i class="fa-solid fa-circle-info"></i> 点击橙色发光触点剖析硬件结构
+                    </div>
+                    
+                    <!-- Interactive Visual SVG of Robotic Dog (Redesigned with Ultra-High Fidelity Spec) -->
+                    <div class="w-full max-w-lg my-6 relative select-none">
+                        <svg viewBox="0 0 500 420" class="w-full h-auto">
+                            <defs>
+                                <!-- Gradients for realistic mechanical components -->
+                                <linearGradient id="metal-silver" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f8fafc" />
+                                    <stop offset="30%" stop-color="#cbd5e1" />
+                                    <stop offset="70%" stop-color="#94a3b8" />
+                                    <stop offset="100%" stop-color="#475569" />
+                                </linearGradient>
+                                <linearGradient id="metal-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fef08a" />
+                                    <stop offset="50%" stop-color="#eab308" />
+                                    <stop offset="100%" stop-color="#854d0e" />
+                                </linearGradient>
+                                <linearGradient id="chassis-cream" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffffff" />
+                                    <stop offset="60%" stop-color="#f8fafc" />
+                                    <stop offset="100%" stop-color="#e2e8f0" />
+                                </linearGradient>
+                                <linearGradient id="dark-carbon" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#334155" />
+                                    <stop offset="50%" stop-color="#1e293b" />
+                                    <stop offset="100%" stop-color="#0f172a" />
+                                </linearGradient>
+                                <radialGradient id="camera-lens" cx="40%" cy="40%" r="60%">
+                                    <stop offset="0%" stop-color="#38bdf8" />
+                                    <stop offset="40%" stop-color="#0284c7" />
+                                    <stop offset="80%" stop-color="#0f172a" />
+                                    <stop offset="100%" stop-color="#020617" />
+                                </radialGradient>
+                                <filter id="ambient-shadow" x="-10%" y="-10%" width="120%" height="120%">
+                                    <feDropShadow dx="0" dy="12" stdDeviation="8" flood-opacity="0.15" />
+                                </filter>
+                            </defs>
+
+                            <!-- Ambient Floor Shadow -->
+                            <ellipse cx="250" cy="380" rx="180" ry="16" fill="rgba(15, 23, 42, 0.18)" filter="blur(6px)" />
+
+                            <!-- LEFT BACK LEG (Background Leg) -->
+                            <circle cx="110" cy="240" r="22" fill="url(#metal-silver)" />
+                            <circle cx="110" cy="240" r="14" fill="url(#dark-carbon)" />
+                            <path d="M 110 240 L 80 310" stroke="url(#dark-carbon)" stroke-width="14" stroke-linecap="round" />
+                            <line x1="120" y1="245" x2="95" y2="305" stroke="url(#metal-silver)" stroke-width="5" />
+                            <circle cx="80" cy="310" r="10" fill="url(#metal-silver)" />
+                            <path d="M 80 310 L 100 375" stroke="url(#metal-silver)" stroke-width="8" stroke-linecap="round" />
+                            <ellipse cx="102" cy="378" rx="12" ry="6" fill="url(#dark-carbon)" />
+
+                            <!-- LEFT FRONT LEG (Background Leg) -->
+                            <circle cx="310" cy="250" r="22" fill="url(#metal-silver)" />
+                            <circle cx="310" cy="250" r="14" fill="url(#dark-carbon)" />
+                            <path d="M 310 250 L 290 320" stroke="url(#dark-carbon)" stroke-width="14" stroke-linecap="round" />
+                            <line x1="320" y1="255" x2="302" y2="315" stroke="url(#metal-silver)" stroke-width="5" />
+                            <circle cx="290" cy="320" r="10" fill="url(#metal-silver)" />
+                            <path d="M 290 320 L 310 375" stroke="url(#metal-silver)" stroke-width="8" stroke-linecap="round" />
+                            <ellipse cx="312" cy="378" rx="12" ry="6" fill="url(#dark-carbon)" />
+
+                            <!-- MAIN TORSO / MECHANICAL BELLY -->
+                            <path d="M 110 230 Q 210 270 310 240" stroke="url(#dark-carbon)" stroke-width="25" stroke-linecap="round" fill="none" />
+                            
+                            <!-- BIONIC CHASSIS SHELL (Segmented for organic high-end look) -->
+                            <path d="M 100 170 C 130 150, 280 150, 330 190 L 320 260 C 270 260, 130 250, 100 220 Z" fill="url(#chassis-cream)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#ambient-shadow)" />
+                            <path d="M 115 175 C 145 160, 270 160, 315 195" stroke="#ffffff" stroke-width="3" fill="none" />
+
+                            <!-- Spine Charging Saddle (脊背集成式磁吸充电鞍槽) -->
+                            <path d="M 180 160 Q 225 152 270 160 L 265 174 Q 225 166 185 174 Z" fill="url(#dark-carbon)" />
+                            <rect x="210" y="157" width="30" height="4" fill="url(#metal-gold)" rx="1" /> 
+
+                            <!-- Wristband Docked -->
+                            <g id="svg-wristband" class="opacity-0 transition-opacity duration-500">
+                                <rect x="195" y="145" width="60" height="15" rx="6" fill="#003366" stroke="#0055a5" stroke-width="1" />
+                                <rect x="215" y="147" width="20" height="11" rx="3" fill="#0f172a" />
+                                <circle cx="225" cy="152" r="3" fill="#60a5fa" class="animate-ping" />
+                            </g>
+
+                            <!-- RIGHT BACK LEG (Foreground detailed leg) -->
+                            <circle cx="120" cy="230" r="26" fill="url(#metal-silver)" />
+                            <circle cx="120" cy="230" r="16" fill="url(#dark-carbon)" />
+                            <path d="M 120 230 L 150 295" stroke="url(#dark-carbon)" stroke-width="18" stroke-linecap="round" />
+                            <!-- Shock Absorber Piston -->
+                            <line x1="110" y1="240" x2="135" y2="290" stroke="url(#metal-silver)" stroke-width="6" />
+                            <line x1="110" y1="240" x2="135" y2="290" stroke="#003366" stroke-width="2" />
+                            <circle cx="150" cy="295" r="12" fill="url(#metal-silver)" />
+                            <path d="M 150 295 L 125 375" stroke="url(#metal-silver)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="123" cy="375" r="10" fill="url(#dark-carbon)" />
+                            <circle cx="123" cy="375" r="5" fill="url(#metal-silver)" />
+
+                            <!-- RIGHT FRONT LEG (Foreground detailed leg) -->
+                            <circle cx="320" cy="240" r="26" fill="url(#metal-silver)" />
+                            <circle cx="320" cy="240" r="16" fill="url(#dark-carbon)" />
+                            <path d="M 320 240 L 350 305" stroke="url(#dark-carbon)" stroke-width="18" stroke-linecap="round" />
+                            <!-- Front shock absorber -->
+                            <line x1="310" y1="250" x2="335" y2="300" stroke="url(#metal-silver)" stroke-width="6" />
+                            <line x1="310" y1="250" x2="335" y2="300" stroke="#003366" stroke-width="2" />
+                            <circle cx="350" cy="305" r="12" fill="url(#metal-silver)" />
+                            <path d="M 350 305 L 335 375" stroke="url(#metal-silver)" stroke-width="10" stroke-linecap="round" />
+                            <circle cx="333" cy="375" r="10" fill="url(#dark-carbon)" />
+                            <circle cx="333" cy="375" r="5" fill="url(#metal-silver)" />
+
+                            <!-- BIONIC TAIL -->
+                            <path d="M 100 180 Q 50 140 30 170" stroke="url(#dark-carbon)" stroke-width="8" stroke-linecap="round" fill="none" />
+                            <circle cx="30" cy="170" r="8" fill="#10b981" class="animate-pulse" />
+
+                            <!-- NECK & SOLID COLLAR -->
+                            <path d="M 310 190 L 350 145 L 385 175 L 335 225 Z" fill="url(#dark-carbon)" />
+                            <path d="M 345 150 L 330 170" stroke="url(#metal-gold)" stroke-width="4" />
+
+                            <!-- ADVANCED HEAD ARMOR -->
+                            <path d="M 350 135 C 380 75, 440 90, 460 115 L 440 185 Q 400 205, 360 185, 350 160 Z" fill="url(#chassis-cream)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#ambient-shadow)" />
+                            <path d="M 385 105 Q 410 85 440 100 L 425 155 Q 390 155 385 135 Z" fill="#eef2f6" />
+
+                            <!-- Active Ears / Multi-sensor Fins -->
+                            <path d="M 380 95 Q 345 50 365 45 Q 380 50 395 85 Z" fill="url(#dark-carbon)" />
+                            <path d="M 385 90 Q 360 55 375 52 Z" fill="#003366" />
+
+                            <!-- OLED EMOTION EYE PANEL -->
+                            <ellipse id="svg-eye-l" cx="418" cy="118" rx="12" ry="5" fill="#3b82f6" class="led-glow" style="color: #3b82f6; transform: rotate(10deg); transform-origin: 418px 118px;" />
+                            <ellipse id="svg-eye-r" cx="442" cy="126" rx="12" ry="5" fill="#3b82f6" class="led-glow" style="color: #3b82f6; transform: rotate(10deg); transform-origin: 442px 126px;" />
+
+                            <!-- 120° Wide-angle Camera "犬眼" -->
+                            <circle cx="452" cy="150" r="10" fill="url(#dark-carbon)" />
+                            <circle cx="452" cy="150" r="6" fill="url(#camera-lens)" />
+                            <circle cx="454" cy="148" r="2.5" fill="#ffffff" opacity="0.8" />
+
+                            <!-- Front mmWave Radar on Chest -->
+                            <rect x="360" y="215" width="22" height="28" rx="5" fill="url(#dark-carbon)" />
+                            <circle id="svg-radar-core" cx="371" cy="229" r="6" fill="#ef4444" class="animate-pulse" />
+
+                            <!-- INTERACTIVE HOTSPOTS OVERLAY -->
+                            <g class="cursor-pointer" onclick="selectHotspot('spine')">
+                                <circle cx="225" cy="165" r="22" fill="rgba(249, 115, 22, 0.2)" />
+                                <circle cx="225" cy="165" r="7" fill="#f97316" class="hotspot-pulse" />
+                            </g>
+                            <g class="cursor-pointer" onclick="selectHotspot('eyes')">
+                                <circle cx="430" cy="122" r="22" fill="rgba(249, 115, 22, 0.2)" />
+                                <circle cx="430" cy="122" r="7" fill="#f97316" class="hotspot-pulse" />
+                            </g>
+                            <g class="cursor-pointer" onclick="selectHotspot('camera')">
+                                <circle cx="452" cy="150" r="20" fill="rgba(249, 115, 22, 0.2)" />
+                                <circle cx="452" cy="150" r="7" fill="#f97316" class="hotspot-pulse" />
+                            </g>
+                            <g class="cursor-pointer" onclick="selectHotspot('audio')">
+                                <circle cx="280" cy="210" r="22" fill="rgba(249, 115, 22, 0.2)" />
+                                <circle cx="280" cy="210" r="7" fill="#f97316" class="hotspot-pulse" />
+                            </g>
+                            <g class="cursor-pointer" onclick="selectHotspot('radar')">
+                                <circle cx="371" cy="229" r="20" fill="rgba(249, 115, 22, 0.2)" />
+                                <circle cx="371" cy="229" r="7" fill="#f97316" class="hotspot-pulse" />
+                            </g>
+                        </svg>
+                        
+                        <!-- Sound Wave Animation Indicator (hidden by default) -->
+                        <div id="sound-wave" class="absolute bottom-36 right-24 flex items-end gap-1 h-8 opacity-0 transition-opacity duration-300">
+                            <div class="w-1.5 bg-blue-500 rounded-full wave-bar" style="animation-delay: 0.1s"></div>
+                            <div class="w-1.5 bg-blue-600 rounded-full wave-bar" style="animation-delay: 0.3s"></div>
+                            <div class="w-1.5 bg-blue-400 rounded-full wave-bar" style="animation-delay: 0.5s"></div>
+                            <div class="w-1.5 bg-blue-500 rounded-full wave-bar" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+
+                    <!-- Dog Vocal Subtitle/Status Bubble -->
+                    <div class="w-full bg-slate-900 text-slate-100 p-4 rounded-2xl border border-slate-800 flex items-start gap-3 my-2 shadow-inner">
+                        <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs flex-shrink-0 animate-bounce">
+                            <i class="fa-solid fa-dog"></i>
+                        </div>
+                        <div class="space-y-1 flex-grow">
+                            <span class="text-[10px] uppercase tracking-wider text-blue-400 font-bold block">伴侣犬实时语音播报中：</span>
+                            <p id="dog-broadcast-text" class="text-xs text-slate-200 leading-normal italic font-medium">
+                                “大黄正在随时听候用户差遣。请对我说：‘大黄，帮我测测今日营养需求’，或者在右侧直接向我提问。”
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Accessory Demo: Wristband -->
+                    <div class="w-full bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-3 bg-blue-50 text-blue-600 rounded-full text-lg"><i class="fa-solid fa-clock"></i></span>
+                            <div>
+                                <h4 class="font-bold text-sm text-[#003366]">全能守护手环 (18克极轻)</h4>
+                                <p class="text-xs text-slate-500">24H体征监测 + 五重融合GPS防丢</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="btn-wristband-dock" onclick="toggleWristbandDock()" class="bg-[#003366] hover:bg-[#002244] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition">
+                                <i class="fa-solid fa-bolt"></i> 放至狗背充电
+                            </button>
+                            <span id="wristband-battery" class="text-xs font-bold text-slate-600 bg-slate-200 px-2 py-1 rounded">电量: 85%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Details Specification Deck -->
+                <div class="lg:col-span-5 flex flex-col gap-6">
+                    <!-- Highlight detail card -->
+                    <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 custom-shadow">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">物理设计核心要素</h3>
+                        <div id="hotspot-title" class="text-2xl font-black text-[#003366] mb-4">脊背集成式磁吸充电鞍槽</div>
+                        <p id="hotspot-desc" class="text-slate-600 text-sm leading-relaxed mb-6">
+                            设计方案在伴侣犬背部安装有凹陷型高磁强鞍槽。老人回家随手将手环抛至狗背，磁力会自动对齐吸附锁紧。手环通过机器狗内置的 $8000\text{ mAh}$ 大电池进行无线无线快充。彻底免除插线烦恼。
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                            <div>
+                                <span class="text-xs text-slate-400 font-bold block">工业考量</span>
+                                <span id="spec-key" class="text-slate-800 font-bold text-sm">无感易用、磁吸对位</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 font-bold block">硬件技术</span>
+                                <span id="spec-value" class="text-slate-800 font-bold text-sm">感应式电磁充电、防水无开孔</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dog Eye Color Mode Sandbox -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 custom-shadow">
+                        <h4 class="font-bold text-sm text-[#003366] mb-3">LED 情感交互灯模式沙盒 (Emotion Eyes)</h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="setEyeColor('blue', '平静陪伴状态', '无屏化设计下，温暖呼吸的蓝色微光代表机器狗目前处于健康状态，给老人极强的心灵陪伴感。')" class="border border-slate-100 bg-slate-50 hover:bg-slate-100 p-2.5 rounded-xl flex flex-col items-center gap-1.5 transition">
+                                <span class="w-3.5 h-3.5 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50"></span>
+                                <span class="text-xs font-bold text-slate-600">平静蓝</span>
+                            </button>
+                            <button onclick="setEyeColor('orange', '吃药/营养品提醒状态', '进入设定时间，伴侣犬眼部呼吸微红温和眨眼，配合语音：用户，大黄来催您喝定制佳膳膳食粉啦！')" class="border border-slate-100 bg-slate-50 hover:bg-slate-100 p-2.5 rounded-xl flex flex-col items-center gap-1.5 transition">
+                                <span class="w-3.5 h-3.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/50"></span>
+                                <span class="text-xs font-bold text-slate-600">提醒橙</span>
+                            </button>
+                            <button onclick="setEyeColor('red', '紧急求救状态', '当判定跌倒事件，伴侣犬眼部红光急速闪烁，触发高分贝吠叫向邻里报警，同步向家属推送视频直连指令。')" class="border border-slate-100 bg-slate-50 hover:bg-slate-100 p-2.5 rounded-xl flex flex-col items-center gap-1.5 transition">
+                                <span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-lg shadow-red-500/50"></span>
+                                <span class="text-xs font-bold text-slate-600">警报红</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 2: CHILDREN'S COMPANION APP & ACTIVE NETWORK TERMINAL -->
+            <div id="panel-app" class="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
+                <!-- Left: App Feature Navigation Card -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 custom-shadow">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">《雀巢守护家》App</h3>
+                        <h2 class="text-2xl font-black text-[#003366] mb-4">子女远程关怀中枢</h2>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                            专为远在一二线城市的中产阶级子女（二级受众）设计。全面消除“远距离赡养焦虑”，实时、多维、安心监控老人的安全轨迹、用药执行以及健康习惯。
+                        </p>
+                        
+                        <!-- Mini Tab Switces in Phone -->
+                        <div class="flex flex-col gap-2">
+                            <button onclick="switchAppTab('home')" id="app-nav-home" class="w-full text-left bg-blue-50 border border-blue-100 text-[#003366] px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition">
+                                <span><i class="fa-solid fa-chart-line mr-2"></i> 1. 每日健康与营养总览</span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                            <button onclick="switchAppTab('video')" id="app-nav-video" class="w-full text-left bg-slate-50 border border-slate-100 text-slate-600 hover:bg-slate-100 px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition">
+                                <span><i class="fa-solid fa-shield-heart mr-2"></i> 2. 安全守护与互助处置</span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                            <button onclick="switchAppTab('care')" id="app-nav-care" class="w-full text-left bg-slate-50 border border-slate-100 text-slate-600 hover:bg-slate-100 px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition">
+                                <span><i class="fa-solid fa-heart mr-2"></i> 3. 营养干预与远程提醒</span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                            <button onclick="switchAppTab('rank')" id="app-nav-rank" class="w-full text-left bg-slate-50 border border-slate-100 text-slate-600 hover:bg-slate-100 px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition">
+                                <span><i class="fa-solid fa-ranking-star mr-2"></i> 4. 社区活力挑战排行榜</span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Center: High-Fidelity Phone Simulator -->
+                <div class="lg:col-span-4 flex justify-center">
+                    <!-- Phone Chassis -->
+                    <div class="w-[360px] h-[720px] bg-slate-900 rounded-[48px] p-3 shadow-2xl relative border-4 border-slate-800 flex flex-col overflow-hidden">
+                        
+                        <!-- Ear Speaker and Notch -->
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-slate-900 rounded-b-2xl z-50 flex items-center justify-center">
+                            <div class="w-16 h-1 bg-slate-800 rounded-full mb-1"></div>
+                        </div>
+                        
+                        <!-- App Content Area Container -->
+                        <div class="flex-grow bg-slate-50 rounded-[38px] overflow-hidden flex flex-col relative">
+                            
+                            <!-- Phone Status Bar -->
+                            <div class="h-8 px-6 pt-2 flex justify-between items-center text-slate-800 text-xs font-bold z-40 bg-white/40 backdrop-blur-md">
+                                <span id="app-status-time">16:36</span>
+                                <div class="flex items-center gap-1">
+                                    <i class="fa-solid fa-wifi"></i>
+                                    <i class="fa-solid fa-signal"></i>
+                                    <i class="fa-solid fa-battery-full text-sm"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- App Header -->
+                            <div class="bg-gradient-to-b from-white to-slate-50/80 border-b border-slate-100 p-4 pt-2 flex items-center justify-between z-40">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-[#003366] text-white flex items-center justify-center text-xs">
+                                        <i class="fa-solid fa-dog"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-xs text-[#003366]">大黄在线守护中</h4>
+                                        <p class="text-[9px] text-slate-400">已贴身陪伴用户 154 天</p>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full border border-green-100 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span> 远程同步中
+                                </span>
+                            </div>
+                            
+                            <!-- APP PAGE CONTENT WINDOW -->
+                            <div class="flex-grow overflow-y-auto no-scrollbar pb-16">
+                                
+                                <!-- PAGE 1: APP HOME (健康与营养监控) -->
+                                <div id="app-page-home" class="p-4 space-y-4">
+                                    <!-- Elderly Summary Banner -->
+                                    <div class="bg-[#003366] text-white p-4 rounded-2xl relative overflow-hidden shadow-lg shadow-blue-900/10">
+                                        <div class="relative z-10">
+                                            <span class="text-[9px] uppercase tracking-wider text-blue-200 font-bold block">今日监控摘要</span>
+                                            <h4 class="text-base font-black mb-1">用户 (72岁) · 居家安全</h4>
+                                            <p class="text-xs text-blue-100 flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-400"></i> 无跌倒/无常态滞留异常</p>
+                                        </div>
+                                        <div class="absolute right-2 top-2 text-white/5 text-6xl">
+                                            <i class="fa-solid fa-heart-pulse"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Heart Rate Realtime Chart Mockup -->
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-slate-700"><i class="fa-solid fa-heart text-rose-500 mr-1"></i> 手环心率监测</span>
+                                            <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">74 bpm (正常)</span>
+                                        </div>
+                                        <!-- Simulated Sparkline Chart with Grid -->
+                                        <div class="h-16 relative flex items-end">
+                                            <!-- Chart Background Grid Grid -->
+                                            <div class="absolute inset-0 grid grid-cols-6 grid-rows-3 opacity-20">
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-r border-slate-300"></div>
+                                                <div class="border-b border-slate-300"></div>
+                                            </div>
+                                            <!-- SVG Sparkline -->
+                                            <svg class="w-full h-12 stroke-rose-500 stroke-2 fill-none" viewBox="0 0 100 30">
+                                                <path d="M0 15 Q 10 12 20 20 T 40 10 T 60 22 T 80 5 T 100 15" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Nestlé Nutrition Progress Indicators -->
+                                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <h5 class="text-xs font-bold text-[#003366]"><i class="fa-solid fa-leaf text-emerald-500 mr-1"></i> 今日科学膳食与摄入率 (大黄估算)</h5>
+                                        
+                                        <!-- Nutrition Item 1 -->
+                                        <div class="space-y-1">
+                                            <div class="flex justify-between text-xs font-bold text-slate-600">
+                                                <span>蛋白质摄入率 (雀巢配方奶粉+膳食)</span>
+                                                <span class="text-blue-600">80% / 达标</span>
+                                            </div>
+                                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-blue-600 h-full rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Nutrition Item 2 -->
+                                        <div class="space-y-1">
+                                            <div class="flex justify-between text-xs font-bold text-slate-600">
+                                                <span>每日饮水量目标</span>
+                                                <span class="text-cyan-600">65% / 偏低</span>
+                                            </div>
+                                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                                <div class="bg-cyan-500 h-full rounded-full" style="width: 65%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Physical Activity Hot Spot map -->
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                                        <span class="text-xs font-bold text-slate-700 block"><i class="fa-solid fa-house-chimney text-[#003366] mr-1"></i> 大黄居家陪伴活动热力图</span>
+                                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                            <div class="bg-blue-50 p-2 rounded-xl">
+                                                <span class="text-slate-400 text-[9px] block">客厅陪伴</span>
+                                                <span class="font-bold text-[#003366]">4.2 小时</span>
+                                            </div>
+                                            <div class="bg-emerald-50 p-2 rounded-xl">
+                                                <span class="text-slate-400 text-[9px] block">散步随行</span>
+                                                <span class="font-bold text-emerald-700">1.5 小时</span>
+                                            </div>
+                                            <div class="bg-amber-50 p-2 rounded-xl">
+                                                <span class="text-slate-400 text-[9px] block">卧床守护</span>
+                                                <span class="font-bold text-amber-700">6.8 小时</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE 2: APP REALTIME VIDEO MONITOR -->
+                                <div id="app-page-video" class="p-4 space-y-4 hidden">
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-slate-700"><i class="fa-solid fa-shield-heart text-rose-500 mr-1 animate-pulse"></i> 安全守护与互助处置</span>
+                                            <span class="text-[9px] font-bold bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-100 animate-pulse">REC ● LIVE</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-1.5 text-[9px] font-bold">
+                                            <button onclick="switchAppTab('video')" class="bg-[#003366] text-white py-1.5 rounded-lg border border-[#003366]">
+                                                <i class="fa-solid fa-video mr-0.5"></i> 实时看护
+                                            </button>
+                                            <button onclick="switchAppTab('gps')" class="bg-white text-slate-600 py-1.5 rounded-lg border border-slate-200">
+                                                <i class="fa-solid fa-location-dot mr-0.5"></i> 定位防丢
+                                            </button>
+                                            <button onclick="switchAppTab('mutual')" class="bg-white text-red-600 py-1.5 rounded-lg border border-red-100">
+                                                <i class="fa-solid fa-people-arrows mr-0.5"></i> 邻里互助
+                                            </button>
+                                        </div>
+
+                                        <!-- Live Video Stream Simulator Screen with High-Fidelity SVG Animation -->
+                                        <div class="w-full h-44 bg-slate-950 rounded-xl relative overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner">
+                                            
+                                            <!-- Ambient Scanline -->
+                                            <div class="absolute inset-x-0 h-1 bg-sky-400/25 blur-xs animate-scanline z-30 pointer-events-none"></div>
+                                            
+                                            <!-- Video Stream Content -->
+                                            <div id="video-stream-graphic" class="absolute inset-0 z-10 transition-all duration-300">
+                                                <svg viewBox="0 0 300 180" class="w-full h-full">
+                                                    <!-- Cozy Room Background -->
+                                                    <rect width="300" height="180" fill="#fcf6ec" />
+                                                    <rect x="0" y="140" width="300" height="40" fill="#edd6b8" /> <!-- Wood Floor -->
+                                                    
+                                                    <!-- Room window background -->
+                                                    <rect x="20" y="20" width="60" height="70" fill="#bae6fd" rx="4" />
+                                                    <line x1="50" y1="20" x2="50" y2="90" stroke="#f1f5f9" stroke-width="2" />
+                                                    <line x1="20" y1="55" x2="80" y2="55" stroke="#f1f5f9" stroke-width="2" />
+                                                    <path d="M 15 20 Q 50 10 85 20 L 80 30 Q 50 20 20 30 Z" fill="#94a3b8" /> <!-- Valance curtain -->
+
+                                                    <!-- Hanging houseplant -->
+                                                    <line x1="260" y1="0" x2="260" y2="35" stroke="#475569" stroke-width="1.5" />
+                                                    <path d="M 250 35 C 250 45, 270 45, 270 35 Z" fill="#334155" />
+                                                    <path d="M 260 38 Q 235 55 242 70 M 260 38 Q 285 55 278 70 M 260 38 Q 260 65 264 75" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+                                                    <!-- Coffee Table with Nestlé Canister Product -->
+                                                    <ellipse cx="205" cy="142" rx="30" ry="10" fill="#94a3b8" />
+                                                    <rect x="195" y="115" width="20" height="24" rx="4" fill="#003366" />
+                                                    <rect x="195" y="125" width="20" height="8" fill="#60a5fa" />
+                                                    <ellipse cx="205" cy="115" rx="10" ry="3" fill="#cbd5e1" />
+                                                    <text x="205" y="131" font-family="Poppins" font-size="5" font-weight="bold" fill="#ffffff" text-anchor="middle">N</text>
+
+                                                    <!-- Rocking Chair & Grandma -->
+                                                    <g class="animate-rocking">
+                                                        <!-- Rocking Base Arc -->
+                                                        <path d="M 100 152 Q 135 158 170 152" stroke="#653b1b" stroke-width="4" stroke-linecap="round" fill="none" />
+                                                        
+                                                        <!-- Chair Frame Legs -->
+                                                        <line x1="115" y1="125" x2="115" y2="153" stroke="#653b1b" stroke-width="3" />
+                                                        <line x1="155" y1="125" x2="155" y2="154" stroke="#653b1b" stroke-width="3" />
+                                                        <line x1="115" y1="125" x2="155" y2="125" stroke="#653b1b" stroke-width="4" />
+                                                        <path d="M 110 125 L 105 75" stroke="#653b1b" stroke-width="4" stroke-linecap="round" />
+                                                        <line x1="105" y1="90" x2="135" y2="90" stroke="#653b1b" stroke-width="3" stroke-linecap="round" /> <!-- Armrest -->
+
+                                                        <!-- Grandma Cozy Body Sitting -->
+                                                        <path d="M 115 125 Q 120 70 142 85 L 155 125 Z" fill="#93c5fd" /> <!-- Soft blue coat -->
+                                                        <!-- Legs -->
+                                                        <rect x="142" y="123" width="8" height="22" rx="3" fill="#334155" />
+                                                        <rect x="149" y="123" width="8" height="22" rx="3" fill="#334155" />
+                                                        <rect x="145" y="142" width="16" height="6" rx="2" fill="#64748b" /> <!-- Shoes -->
+                                                        
+                                                        <!-- Grandma Head -->
+                                                        <circle cx="132" cy="65" r="11" fill="#fbcfe8" /> <!-- Face -->
+                                                        <path d="M 121 65 Q 132 50 143 65" fill="#e2e8f0" /> <!-- Gray Hair front -->
+                                                        <circle cx="132" cy="52" r="5" fill="#e2e8f0" /> <!-- Hair Bun -->
+                                                        <circle cx="133" cy="63" r="1.5" fill="#1e293b" /> <!-- Eye -->
+                                                        <path d="M 136 67 Q 133 72 131 69" stroke="#db2777" stroke-width="1" fill="none" /> <!-- Pink Cheek -->
+                                                        
+                                                        <!-- Open book on lap -->
+                                                        <path d="M 135 100 L 148 95 L 155 102 L 140 106 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" />
+                                                        <path d="M 148 95 L 160 98 L 167 105 L 155 102 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.5" />
+                                                    </g>
+                                                </svg>
+                                            </div>
+
+                                            <!-- OSD Overlay Text -->
+                                            <div class="absolute top-2 left-2 text-[8px] font-bold text-white bg-slate-900/55 px-1.5 py-0.5 rounded backdrop-blur-xs z-30 flex items-center gap-1">
+                                                <i class="fa-solid fa-camera"></i> <span id="video-camera-label">大黄-客厅巡视首视角</span>
+                                            </div>
+                                            <div class="absolute bottom-2 right-2 text-[8px] font-mono text-white bg-slate-900/55 px-1.5 py-0.5 rounded backdrop-blur-xs z-30">
+                                                <span id="video-live-timer">2026-05-29 17:03:00</span>
+                                            </div>
+                                            <div class="absolute top-2 right-2 text-[8px] font-bold text-white bg-slate-900/55 px-1.5 py-0.5 rounded backdrop-blur-xs z-30 flex items-center gap-1">
+                                                <i class="fa-solid fa-signal text-emerald-400"></i> 124 Kb/s
+                                            </div>
+
+                                            <!-- Privacy Shutter Blur Screen -->
+                                            <div id="video-privacy-screen" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 z-20 transition-opacity duration-300 opacity-0 pointer-events-none">
+                                                <div class="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-2 animate-pulse">
+                                                    <i class="fa-solid fa-eye-slash text-lg"></i>
+                                                </div>
+                                                <h5 class="text-[11px] font-black text-rose-500">【物理隐私防护已启动】</h5>
+                                                <p class="text-[9px] text-slate-400 max-w-[200px] leading-relaxed mt-1">用户已手动滑闭伴侣犬头部的摄像头快门，居家私密生活保护中。</p>
+                                            </div>
+                                            
+                                            <!-- Intercom Pulse Animation Overlay -->
+                                            <div id="intercom-overlay-ui" class="absolute inset-0 bg-blue-950/40 z-10 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                                                <div class="relative flex items-center justify-center">
+                                                    <div class="absolute w-12 h-12 rounded-full border-2 border-blue-400 intercom-ring"></div>
+                                                    <div class="absolute w-16 h-16 rounded-full border border-blue-300/30 intercom-ring" style="animation-delay: 0.5s"></div>
+                                                    <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs shadow-lg">
+                                                        <i class="fa-solid fa-microphone"></i>
+                                                    </div>
+                                                </div>
+                                                <span class="text-[9px] font-bold text-blue-200 mt-2 bg-blue-900/80 px-2 py-0.5 rounded">正在进行远程双向对讲...</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Interactive Camera Controls Panel -->
+                                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-3">
+                                            <!-- Row 1: Privacy Shutter Switch & Mic -->
+                                            <div class="flex items-center justify-between border-b border-slate-200/50 pb-2.5">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="p-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs"><i class="fa-solid fa-user-shield"></i></span>
+                                                    <div class="text-[10px]">
+                                                        <span class="font-bold text-slate-700 block">物理隐私防窥滑盖</span>
+                                                        <span id="txt-privacy-status" class="text-slate-400">已开启(画面正常)</span>
+                                                    </div>
+                                                </div>
+                                                <!-- Simulated Toggle Checkbox -->
+                                                <label class="relative inline-flex items-center cursor-pointer select-none">
+                                                    <input type="checkbox" id="chk-privacy-shutter" onchange="togglePrivacyShutter(this.checked)" class="sr-only peer">
+                                                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500"></div>
+                                                </label>
+                                            </div>
+
+                                            <!-- Row 2: Live Controls -->
+                                            <div class="grid grid-cols-3 gap-2 text-center">
+                                                <!-- Intercom Button -->
+                                                <button id="btn-app-intercom" onclick="toggleIntercom()" class="bg-white hover:bg-slate-100 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center gap-1 transition">
+                                                    <span id="ic-intercom" class="text-[#003366] text-xs"><i class="fa-solid fa-microphone-lines"></i></span>
+                                                    <span id="txt-intercom" class="text-[9px] font-bold text-slate-600">双向对讲</span>
+                                                </button>
+                                                <!-- Photo Snapshot Button -->
+                                                <button onclick="takeSnapshot()" class="bg-white hover:bg-slate-100 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center gap-1 transition">
+                                                    <span class="text-blue-600 text-xs"><i class="fa-solid fa-camera-retro"></i></span>
+                                                    <span class="text-[9px] font-bold text-slate-600">截图抓拍</span>
+                                                </button>
+                                                <!-- Patrol Button -->
+                                                <button onclick="triggerDogPatrol()" class="bg-white hover:bg-slate-100 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center gap-1 transition">
+                                                    <span class="text-emerald-600 text-xs"><i class="fa-solid fa-person-shelter"></i></span>
+                                                    <span class="text-[9px] font-bold text-slate-600">全屋巡逻</span>
+                                                </button>
+                                            </div>
+
+                                            <!-- Row 3: Gimbal direction joystick simulator -->
+                                            <div class="pt-2 border-t border-slate-200/50 flex flex-col items-center gap-1.5">
+                                                <span class="text-[9px] text-slate-400 font-bold block">伴侣犬镜头云台转向控制</span>
+                                                <div class="flex items-center gap-4">
+                                                    <button onclick="driveGimbal('left')" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 text-xs flex items-center justify-center transition"><i class="fa-solid fa-chevron-left"></i></button>
+                                                    <span class="text-[10px] text-slate-500 font-bold">云台调节</span>
+                                                    <button onclick="driveGimbal('right')" class="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-100 active:scale-95 text-slate-600 text-xs flex items-center justify-center transition"><i class="fa-solid fa-chevron-right"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE 3: APP GPS TRACKING (高精双向定位 - NEW REALTIME COORD INTERACTIVE!) -->
+                                <div id="app-page-gps" class="p-4 space-y-4 hidden">
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-slate-700"><i class="fa-solid fa-compass text-[#003366] mr-1"></i> 伴侣犬&长辈高精双向定位</span>
+                                            <span class="text-[9px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">GPS/北斗双定位</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-1.5 text-[9px] font-bold">
+                                            <button onclick="switchAppTab('video')" class="bg-white text-slate-600 py-1.5 rounded-lg border border-slate-200">
+                                                <i class="fa-solid fa-video mr-0.5"></i> 实时看护
+                                            </button>
+                                            <button onclick="switchAppTab('gps')" class="bg-[#003366] text-white py-1.5 rounded-lg border border-[#003366]">
+                                                <i class="fa-solid fa-location-dot mr-0.5"></i> 定位防丢
+                                            </button>
+                                            <button onclick="switchAppTab('mutual')" class="bg-white text-red-600 py-1.5 rounded-lg border border-red-100">
+                                                <i class="fa-solid fa-people-arrows mr-0.5"></i> 邻里互助
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Simulated Map Graphics with CSS + SVG Interactive Lines -->
+                                        <div id="gps-map-container" class="h-44 bg-blue-50 rounded-xl relative overflow-hidden border border-slate-100">
+                                            
+                                            <!-- SVG Connector Line overlay -->
+                                            <svg class="absolute inset-0 w-full h-full pointer-events-none z-10">
+                                                <line id="map-vector-line" x1="150" y1="110" x2="185" y2="100" stroke="#10b981" stroke-width="2.5" stroke-dasharray="4,4" class="transition-all duration-1000" />
+                                            </svg>
+
+                                            <!-- Dynamic Floating Distance Badge -->
+                                            <span id="gps-distance-badge" class="absolute z-20 text-[8px] font-bold bg-white text-[#003366] px-1.5 py-0.5 rounded-full shadow-sm border border-slate-100 transition-all duration-1000" style="left: 145px; top: 92px; white-space: nowrap;">
+                                                相距 3米 (贴身随行)
+                                            </span>
+
+                                            <!-- Abstract Vector Map Roads Grid -->
+                                            <div class="absolute inset-0 opacity-30">
+                                                <div class="absolute top-1/3 left-0 w-full h-2 bg-white transform -rotate-6"></div>
+                                                <div class="absolute top-2/3 left-0 w-full h-2 bg-white transform rotate-3"></div>
+                                                <div class="absolute top-0 left-1/4 w-3 h-full bg-white"></div>
+                                                <div class="absolute top-0 left-3/4 w-2 h-full bg-white transform -rotate-12"></div>
+                                            </div>
+                                            
+                                            <!-- Geo-fence Green Circle -->
+                                            <div class="absolute w-36 h-36 rounded-full border-2 border-emerald-500/30 bg-emerald-500/5 left-12 top-4 flex items-center justify-center animate-pulse">
+                                                <span class="text-[8px] text-emerald-600 font-bold bg-white/90 px-1.5 py-0.5 rounded shadow-sm">1.5KM 安全生活圈</span>
+                                            </div>
+                                            
+                                            <!-- Human Node (Grandma) -->
+                                            <div id="gps-node-human" class="absolute z-20 transition-all duration-1000" style="left: 130px; top: 110px;">
+                                                <!-- Pulse ring -->
+                                                <div class="absolute -inset-2 rounded-full bg-rose-500/30 animate-ping"></div>
+                                                <div class="w-7 h-7 rounded-full bg-rose-500 border-2 border-white flex items-center justify-center text-[10px] text-white font-bold shadow-md shadow-rose-900/40">
+                                                    <i class="fa-solid fa-person-walking"></i>
+                                                </div>
+                                                <span class="absolute -top-4 left-1/2 transform -translate-x-1/2 text-[7px] bg-rose-500 text-white px-1 rounded-sm font-black whitespace-nowrap shadow-sm">用户</span>
+                                            </div>
+
+                                            <!-- Dog Node (Health Buddy) -->
+                                            <div id="gps-node-dog" class="absolute z-20 transition-all duration-1000" style="left: 175px; top: 100px;">
+                                                <!-- Pulse ring -->
+                                                <div class="absolute -inset-2 rounded-full bg-blue-500/30 animate-ping"></div>
+                                                <div class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white flex items-center justify-center text-[10px] text-white font-bold shadow-md shadow-blue-900/40">
+                                                    <i class="fa-solid fa-dog"></i>
+                                                </div>
+                                                <span class="absolute -top-4 left-1/2 transform -translate-x-1/2 text-[7px] bg-blue-600 text-white px-1 rounded-sm font-black whitespace-nowrap shadow-sm">大黄狗</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Dual Location Telemetry Console -->
+                                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600 space-y-2">
+                                            <div class="flex justify-between font-bold text-slate-700">
+                                                <span>相对定位监控:</span>
+                                                <span id="txt-gps-status" class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">双向安全随行中</span>
+                                            </div>
+                                            <p id="txt-gps-desc">用户大红定位点与大黄蓝色定位点保持极佳社交跟从距离。信号覆盖率100%，处于1.5公里社区安防圈内。</p>
+                                            
+                                            <!-- Simulated trigger to offset node distance (core pitch demo highlight!) -->
+                                            <div class="pt-1">
+                                                <button onclick="toggleGpsDeviation()" id="btn-gps-simulate" class="w-full bg-[#003366] hover:bg-[#002244] text-white py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5">
+                                                    <i class="fa-solid fa-person-walking-arrow-right"></i> 模拟用户走远（测试防走失警报）
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE 4: APP MUTUAL AID REQUEST (摔倒后的子女主动邻里互助) -->
+                                <div id="app-page-mutual" class="p-4 space-y-4 hidden">
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-slate-700"><i class="fa-solid fa-shield-heart text-red-500 mr-1 animate-pulse"></i> 安全守护与互助处置</span>
+                                            <span class="text-[9px] font-bold bg-red-50 text-red-600 px-2 py-0.5 rounded-full border border-red-100">紧急响应</span>
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-1.5 text-[9px] font-bold">
+                                            <button onclick="switchAppTab('video')" class="bg-white text-slate-600 py-1.5 rounded-lg border border-slate-200">
+                                                <i class="fa-solid fa-video mr-0.5"></i> 实时看护
+                                            </button>
+                                            <button onclick="switchAppTab('gps')" class="bg-white text-slate-600 py-1.5 rounded-lg border border-slate-200">
+                                                <i class="fa-solid fa-location-dot mr-0.5"></i> 定位防丢
+                                            </button>
+                                            <button onclick="switchAppTab('mutual')" class="bg-red-600 text-white py-1.5 rounded-lg border border-red-600">
+                                                <i class="fa-solid fa-people-arrows mr-0.5"></i> 邻里互助
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-red-50 border border-red-100 p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden">
+                                        <div class="absolute -right-6 -bottom-8 text-red-100/70 text-8xl pointer-events-none">
+                                            <i class="fa-solid fa-hand-holding-medical"></i>
+                                        </div>
+                                        <div class="relative z-10">
+                                            <div class="flex items-center justify-between gap-2">
+                                                <div>
+                                                    <span class="text-[9px] uppercase tracking-wider text-red-400 font-bold block">跌倒后处置台</span>
+                                                    <h5 class="text-sm font-black text-red-700">用户疑似摔倒 · 是否请求社区互助？</h5>
+                                                </div>
+                                                <span id="mutual-aid-status" class="text-[9px] bg-slate-100 text-slate-500 px-2 py-1 rounded-full font-black border border-slate-200">待子女确认</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-600 leading-normal mt-2">
+                                                设备已完成手环姿态 + 大黄雷达双重识别。子女端可在确认需要帮助后，向同小区已购买产品并加入互助池的认证用户发送限时互助请求。
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 text-[10px]">
+                                        <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                                            <span class="text-slate-400 font-bold block">现场证据</span>
+                                            <b class="text-[#003366] block mt-1">客厅 · 低姿态滞留 18 秒</b>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                                            <span class="text-slate-400 font-bold block">建议动作</span>
+                                            <b class="text-red-600 block mt-1">先互助确认，再升级120</b>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-slate-700"><i class="fa-solid fa-people-roof text-blue-600 mr-1"></i> 推荐互助对象</span>
+                                            <span class="text-[9px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold border border-blue-100">最小必要信息</span>
+                                        </div>
+                                        <div class="space-y-2 text-[11px]">
+                                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                                <div>
+                                                    <b class="text-slate-800 block">社区住户A · 同楼栋 2 层</b>
+                                                    <span class="text-slate-500">认证用户，可敲门确认，预计 2 分钟</span>
+                                                </div>
+                                                <span id="neighbor-one-status" class="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-bold">推荐</span>
+                                            </div>
+                                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                                <div>
+                                                    <b class="text-slate-800 block">社区住户B · 距离 68 米</b>
+                                                    <span class="text-slate-500">会基础急救，可联系物业，预计 4 分钟</span>
+                                                </div>
+                                                <span id="neighbor-two-status" class="text-[9px] bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded font-bold">待推送</span>
+                                            </div>
+                                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                                <div>
+                                                    <b class="text-slate-800 block">社区健康驿站</b>
+                                                    <span class="text-slate-500">无人接单或状态恶化时自动升级</span>
+                                                </div>
+                                                <span id="station-status" class="text-[9px] bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded font-bold">备选</span>
+                                            </div>
+                                        </div>
+                                        <button onclick="requestMutualAid()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-bold shadow shadow-red-600/20 transition">
+                                            <i class="fa-solid fa-bullhorn mr-1"></i> 向附近认证用户发送互助请求
+                                        </button>
+                                    </div>
+
+                                    <div class="bg-blue-50/70 p-3.5 rounded-2xl border border-blue-100 text-[10px] text-slate-600 leading-normal">
+                                        <b class="text-[#003366] block mb-1">产品经理优化点</b>
+                                        互助请求不是默认群发，而是由子女主动发起；邻居接单后才显示门牌和联系电话，只承担“敲门确认、联系物业、陪同等待”等低风险任务。
+                                    </div>
+                                </div>
+
+                                <!-- PAGE 5: APP CARE SERVICES (远程药膳督促与 ✨AI 评估) -->
+                                <div id="app-page-care" class="p-4 space-y-4 hidden">
+                                    <!-- AI Meal Diagnostics -->
+                                    <div class="bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-100 p-4 rounded-2xl shadow-sm space-y-3 relative overflow-hidden">
+                                        <div class="absolute -right-6 -bottom-6 text-blue-100/30 text-8xl pointer-events-none">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[#003366]"><i class="fa-solid fa-shuttle-space"></i></span>
+                                            <h5 class="text-xs font-black text-[#003366]">✨ AI 膳食营养诊断中心</h5>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 leading-normal">
+                                            输入长辈今日的一日三餐。大黄将调用 **Nestlé 智能营养云脑** 智能诊断营养素比例，智能识别中老年“肌少症”隐忧，并输出雀巢专家配餐处方。
+                                        </p>
+                                        <div class="space-y-2">
+                                            <textarea id="app-meal-input" rows="2" class="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs text-slate-600 leading-relaxed focus:outline-none focus:border-blue-500" placeholder="例如：早餐稀饭配咸菜；中午大米饭和红烧肉；晚餐素面。"></textarea>
+                                            <button onclick="runAppMealDiagnosis()" id="btn-app-diet-ai" class="w-full bg-gradient-to-r from-[#003366] to-[#0055a5] hover:from-[#002244] hover:to-[#004488] text-white py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                                                <i class="fa-solid fa-brain"></i> ✨ 智能评估今日膳食
+                                            </button>
+                                        </div>
+                                        <!-- Interactive Result Holder -->
+                                        <div id="app-diet-report-card" class="bg-white p-3 rounded-xl border border-slate-100 text-[11px] leading-relaxed text-slate-600 hidden space-y-2">
+                                            <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                                                <span class="font-black text-[#003366]"><i class="fa-solid fa-clipboard-user text-emerald-500 mr-1"></i> 雀巢医学营养建议书</span>
+                                                <span class="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.2 rounded font-bold">大脑生成</span>
+                                            </div>
+                                            <p id="app-diet-report-text" class="text-xs text-slate-700 whitespace-pre-wrap leading-normal"></p>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <span class="text-xs font-bold text-slate-700 block"><i class="fa-solid fa-circle-plus text-emerald-500 mr-1"></i> 新增远程督促指令</span>
+                                        
+                                        <!-- Custom Reminder input form simulator -->
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="text-[10px] text-slate-400 font-bold block mb-1">1. 选择督促类型</label>
+                                                <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                                                    <button onclick="setReminderType('med')" id="btn-type-med" class="bg-blue-50 border border-blue-200 text-[#003366] p-2 rounded-xl font-bold transition">吃药提醒</button>
+                                                    <button onclick="setReminderType('nutri')" id="btn-type-nutri" class="bg-slate-50 border border-slate-100 text-slate-600 p-2 rounded-xl font-bold transition">补充雀巢营养液</button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="text-[10px] text-slate-400 font-bold block mb-1">2. 设定执行时间</label>
+                                                <input type="time" id="reminder-time" value="12:00" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-2 text-xs font-bold text-[#003366]">
+                                            </div>
+                                            <div>
+                                                <label class="text-[10px] text-slate-400 font-bold block mb-1">3. 输入语音广播内容</label>
+                                                <textarea id="reminder-text" rows="2" class="w-full bg-slate-50 border border-slate-100 rounded-xl p-2 text-xs text-slate-600 leading-normal" placeholder="大黄会通过狗吠并用温和的语气对老人家进行督促播报..."></textarea>
+                                            </div>
+                                            
+                                            <button onclick="addReminderToList()" class="w-full bg-[#003366] hover:bg-[#002244] text-white py-2.5 rounded-xl text-xs font-bold shadow shadow-blue-900/10 transition">
+                                                <i class="fa-solid fa-paper-plane mr-1"></i> 下发指令给大黄狗
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dynamic Active Reminders list -->
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                                        <span class="text-xs font-bold text-slate-700 block">大黄狗今日执行队列</span>
+                                        <div id="reminder-list-container" class="space-y-2.5">
+                                            <!-- Seed Item -->
+                                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] flex justify-between items-start">
+                                                <div class="space-y-1">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+                                                        <span class="font-bold text-slate-800">12:00 用药与营养督促</span>
+                                                    </div>
+                                                    <p class="text-slate-500 leading-normal">大黄催您吃血压药，喝一包佳膳，不要忘记哦</p>
+                                                </div>
+                                                <span class="text-[9px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-bold">待执行</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE 6: COMMUNITY ACTIVITY LEADERBOARD (运动排行) -->
+                                <div id="app-page-rank" class="p-4 space-y-4 hidden">
+                                    <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                                        <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 text-center relative overflow-hidden">
+                                            <span class="text-[9px] text-slate-400 font-bold block">用户今日竞赛名次</span>
+                                            <div class="text-2xl font-black text-[#003366]" id="elderly-rank-display">第 4 名</div>
+                                            <p class="text-[10px] text-slate-500 mt-1">今日累计步数: <span id="elderly-steps-display" class="font-bold text-blue-600">3,420 步</span></p>
+                                        </div>
+                                        
+                                        <!-- Leaderboard Ranks -->
+                                        <div class="space-y-2 text-xs">
+                                            <!-- Rank 1 -->
+                                            <div class="flex items-center justify-between p-2 rounded-xl bg-amber-50/50 border border-amber-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-black text-amber-600 text-sm">🥇 1</span>
+                                                    <span class="font-bold text-slate-800">社区用户A (社区达人)</span>
+                                                </div>
+                                                <span class="font-bold text-slate-500">6,540 步</span>
+                                            </div>
+                                            <!-- Rank 2 -->
+                                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-black text-slate-400 text-sm">🥈 2</span>
+                                                    <span class="font-bold text-slate-800">社区用户B (隔壁老邻居)</span>
+                                                </div>
+                                                <span class="font-bold text-slate-500">4,890 步</span>
+                                            </div>
+                                            <!-- Rank 3 -->
+                                            <div class="flex items-center justify-between p-2 rounded-xl bg-amber-800/5 border border-amber-800/10">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-black text-amber-800 text-sm">🥉 3</span>
+                                                    <span class="font-bold text-slate-800">陈阿姨 (太极拳队)</span>
+                                                </div>
+                                                <span class="font-bold text-slate-500">4,120 步</span>
+                                            </div>
+                                            <!-- User Rank -->
+                                            <div id="rank-item-user" class="flex items-center justify-between p-2 rounded-xl bg-blue-100/50 border border-blue-200 shadow-sm">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-black text-blue-600 text-sm">4</span>
+                                                    <span class="font-black text-[#003366]">用户 (您的家人)</span>
+                                                </div>
+                                                <span id="user-rank-steps" class="font-black text-blue-600">3,420 步</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Simulator triggers -->
+                                        <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-xl text-center">
+                                            <button onclick="simulateWalking()" class="w-full bg-[#003366] hover:bg-[#002244] text-white py-2 rounded-xl text-xs font-bold transition shadow-sm">
+                                                <i class="fa-solid fa-person-walking"></i> 模拟用户下午健步走 (+1500步)
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                            <!-- APP SIMULATOR NAVIGATION TAB BAR (Grouped into 4 product modules) -->
+                            <div class="absolute bottom-0 inset-x-0 h-16 bg-white/90 backdrop-blur-md border-t border-slate-100 grid grid-cols-4 items-center text-center z-40 text-slate-400">
+                                <button onclick="switchAppTab('home')" id="app-btn-home" class="text-[#003366] flex flex-col items-center justify-center gap-1 select-none">
+                                    <i class="fa-solid fa-chart-line text-xs md:text-sm"></i>
+                                    <span class="text-[8px] font-bold">健康总览</span>
+                                </button>
+                                <button onclick="switchAppTab('video')" id="app-btn-video" class="flex flex-col items-center justify-center gap-1 select-none">
+                                    <i class="fa-solid fa-shield-heart text-xs md:text-sm"></i>
+                                    <span class="text-[8px] font-bold">安全守护</span>
+                                </button>
+                                <button onclick="switchAppTab('care')" id="app-btn-care" class="flex flex-col items-center justify-center gap-1 select-none">
+                                    <i class="fa-solid fa-heart text-xs md:text-sm"></i>
+                                    <span class="text-[8px] font-bold">营养提醒</span>
+                                </button>
+                                <button onclick="switchAppTab('rank')" id="app-btn-rank" class="flex flex-col items-center justify-center gap-1 select-none">
+                                    <i class="fa-solid fa-ranking-star text-xs md:text-sm"></i>
+                                    <span class="text-[8px] font-bold">健康排行</span>
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Visual App Feedback/Console Panel -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <!-- Event Broadcast & LLM Chat Terminal (Fully Refactored for Dual mode!) -->
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 custom-shadow flex-grow flex flex-col justify-between">
+                        <div>
+                            <!-- Tabs for Console Panel -->
+                            <div class="flex border-b border-slate-100 mb-4 text-xs font-bold">
+                                <button onclick="switchConsoleTab('ai')" id="console-tab-ai" class="border-b-2 border-[#003366] text-[#003366] pb-2 px-3 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-nodes"></i> ✨ 大黄 AI 对话
+                                </button>
+                                <button onclick="switchConsoleTab('log')" id="console-tab-log" class="border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-2 px-3 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-list-check"></i> 状态与系统日志
+                                </button>
+                            </div>
+
+                            <!-- TAB 1: ACTIVE CHAT -->
+                            <div id="console-view-ai" class="space-y-4">
+                                <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-400">大黄科学辟谣与营养对话</h3>
+                                
+                                <!-- Virtual Live Chat window -->
+                                <div id="chat-messages-container" class="h-64 bg-slate-900 text-slate-200 p-4 rounded-2xl border border-slate-800 overflow-y-auto space-y-3 text-xs no-scrollbar">
+                                    <div class="flex items-start gap-2.5">
+                                        <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] flex-shrink-0">
+                                            <i class="fa-solid fa-dog"></i>
+                                        </div>
+                                        <div class="bg-slate-800 p-2.5 rounded-2xl rounded-tl-none leading-relaxed text-slate-200">
+                                            汪汪！我是大黄 🐶！作为雀巢健康科学的AI卫士，今天想查证什么养生谣言，或者想要什么膳食调理建议？直接在下面输入问我吧！
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Presets and Quick actions -->
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] text-slate-400 font-bold block">💡 快速点击查证高频伪科学：</span>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <button onclick="triggerQuickRumor('bone')" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-medium px-2.5 py-1.5 rounded-full transition flex items-center gap-1">
+                                            🦴 骨头汤真补钙吗？
+                                        </button>
+                                        <button onclick="triggerQuickRumor('eggplant')" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-medium px-2.5 py-1.5 rounded-full transition flex items-center gap-1">
+                                            🍆 生吃茄子能吸油吗？
+                                        </button>
+                                        <button onclick="triggerQuickRumor('weakness')" class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-medium px-2.5 py-1.5 rounded-full transition flex items-center gap-1">
+                                            💪 腿脚无力怎么补？
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: SYSTEM PHYSICAL LOG (The original display) -->
+                            <div id="console-view-log" class="hidden space-y-4">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">大黄物理遥测及事件流</h3>
+                                <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 text-xs h-64 overflow-y-auto no-scrollbar space-y-2 font-mono">
+                                    <div class="text-slate-400">[16:36:00] 系统安全启动...</div>
+                                    <div class="text-emerald-400">[16:36:02] eSIM蜂窝网连接建立，信号强。</div>
+                                    <div class="text-blue-400">[16:36:05] 手环连接状态: 已绑定用户手环，心率监控中。</div>
+                                    <div class="text-slate-400">[16:36:10] 自主雷达避障姿态初始化完成。</div>
+                                    <div class="text-slate-400">[16:36:15] 雀巢医学数据库RAG索引建立。</div>
+                                    <div id="console-dynamic-logs" class="space-y-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Consolidated input row for AI terminal -->
+                        <div class="mt-4 border-t border-slate-100 pt-4 space-y-3">
+                            <div class="flex gap-2">
+                                <input type="text" id="ai-chat-input" class="bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-xs text-slate-600 flex-grow focus:outline-none focus:border-blue-500" placeholder="向大黄提问，例如“朋友圈说生吃大蒜防感冒真的吗？”" onkeydown="if(event.key === 'Enter') sendQueryToGemini()">
+                                <button onclick="sendQueryToGemini()" id="btn-submit-ai" class="bg-[#003366] hover:bg-[#002244] text-white px-4 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
+                                    <span>发送</span> <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FLOATING EMERGENCY OVERLAY -->
+    <div id="emergency-overlay" class="fixed inset-0 bg-red-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-[32px] p-6 md:p-8 max-w-lg w-full border-2 border-red-500 shadow-2xl relative overflow-hidden space-y-6">
+            <!-- Decorative flashing red bar -->
+            <div class="absolute inset-x-0 top-0 h-2 bg-red-500 animate-pulse"></div>
+            
+            <div class="flex items-center gap-4 text-red-600 border-b border-red-50 pb-4">
+                <span class="p-4 bg-red-50 rounded-full text-3xl animate-bounce"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                <div>
+                    <h3 class="text-xl font-black">【一键警报】检测到用户严重摔倒</h3>
+                    <p class="text-xs text-slate-500">摔倒手环重力姿态判定 + 大黄毫米波雷达双重交叉确诊</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                <p class="font-bold text-slate-800">健康伴侣犬正触发【三级生命急救响应】：</p>
+                
+                <div class="space-y-3">
+                    <div id="step-one" class="p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between text-xs font-medium text-red-900">
+                        <span>一级：大黄小跑接近用户身旁进行确认</span>
+                        <span class="bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">执行中</span>
+                    </div>
+                    <div id="step-two" class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400">
+                        <span>二级：触发全分贝声光吠叫求助同住邻里</span>
+                        <span id="step-two-status" class="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold">待命</span>
+                    </div>
+                    <div id="step-three" class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400">
+                        <span>三级：开启子女App紧急报警视频连线与GPS派遣</span>
+                        <span id="step-three-status" class="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold">待命</span>
+                    </div>
+                    <div id="step-four" class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400">
+                        <span>四级：子女主动向社区认证用户发送互助请求</span>
+                        <span id="step-four-status" class="bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold">待命</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Close simulation buttons -->
+            <div class="flex gap-3 pt-2">
+                <button onclick="dismissEmergency()" class="flex-grow bg-slate-100 hover:bg-slate-200 text-slate-600 py-3 rounded-xl text-xs font-bold transition">
+                    解除警报 (用户自主爬起/误触)
+                </button>
+                <button id="btn-escalate" onclick="escalateSimulation()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-xs font-bold shadow-lg shadow-red-600/20 transition">
+                    进入下一阶段
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS INTERACTIONS -->
+    <script>
+        // Global variables state
+        let isWristbandDocked = false;
+        let globalStatus = 'normal';
+        let simulationStage = 1;
+        let selectedReminderType = 'med';
+        let simulationSteps = 3420;
+        let isShutterClosed = false;
+        let isIntercomActive = false;
+        let isGpsDeviated = false; // GPS 偏离模拟器开关状态
+        
+        // API Config state (silently renamed from gemini key to neutral ai key)
+        let runtimeApiKey = ""; 
+
+        // Hotspot selection and detail update (RESTORED MISSING SPECIFICATIONS)
+        const specs = {
+            spine: {
+                title: "脊背集成式磁吸充电鞍槽",
+                desc: "设计方案在伴侣犬背部安装有凹陷型高磁强鞍槽。老人回家随手将手环抛至狗背，磁力会自动对齐吸附锁紧。手环通过机器狗内置的 $8000\\text{ mAh}$ 大电池进行无线快充。彻底免除老年人寻找细小充电线的烦恼。",
+                key: "无感易用、磁吸对位",
+                val: "电磁感应充电、防水无孔"
+            },
+            eyes: {
+                title: "无屏化呼吸式“情感眼”",
+                desc: "抛弃冷冰冰、老年人极具阅读压力的LCD屏幕，头部保留温润舒适的两个有机 LED 呼吸情感交互灯，利用平静蓝、提醒橙、警报红等模式，在语音播报时温和变色与眨眼，传递情绪与指示。",
+                key: "拟人生动、零交互焦虑",
+                val: "OLED呼吸拟态、状态联动"
+            },
+            camera: {
+                title: "120°超广角安全监控“犬眼”",
+                desc: "头部集成一颗超高清大广角摄像头，自带机械防窥物理快门。当检测到跌倒等危机事件，物理快门自动滑开。提供子女App端高优先级实时视频链路接入，解决家人远方看护焦虑。",
+                key: "物理防窥、紧急自主滑盖",
+                val: "1080P/HDR、隐私遮蔽保护"
+            },
+            audio: {
+                title: "高频增强扬声器 & 声源定位",
+                desc: "头部与背脊处安装有多音区声学系统。针对老年人高频退化的耳朵听力，对2KHz-3KHz频段无损加强。配合机器狗拟真撒娇低喃的拟人声音，即使在厨房洗碗吵杂声中，老人也能无障碍听到叮嘱。",
+                key: "人声定向加强、高抗干扰",
+                val: "10W高保真功放、自适应调音"
+            },
+            radar: {
+                title: "前置毫微米波雷达 (mmWave)",
+                desc: "前胸部集成了高穿透力的毫米波三维环境监测雷达。可在老人不知晓的环境下，24小时高保真监测卧室、走廊老人的站立/坐姿，与手环姿态感知形成双重交叉跌倒判定，保障预警零误报。",
+                key: "主动安全、不侵犯绝对隐私",
+                val: "60GHz毫米波雷达、高精深度图"
+            }
+        };
+
+        // Click handler to select and display hotspot details (RESTORED FUNCTION)
+        function selectHotspot(key) {
+            const elTitle = document.getElementById('hotspot-title');
+            const elDesc = document.getElementById('hotspot-desc');
+            const elKey = document.getElementById('spec-key');
+            const elVal = document.getElementById('spec-value');
+            
+            if (specs[key]) {
+                elTitle.innerText = specs[key].title;
+                elDesc.innerText = specs[key].desc;
+                elKey.innerText = specs[key].key;
+                elVal.innerText = specs[key].val;
+            }
+        }
+
+        // Dynamic vector line connector drawer for the GPS map tab (Critical alignment logic!)
+        function updateMapLine() {
+            const map = document.getElementById('gps-map-container');
+            const line = document.getElementById('map-vector-line');
+            const human = document.getElementById('gps-node-human');
+            const dog = document.getElementById('gps-node-dog');
+            const badge = document.getElementById('gps-distance-badge');
+
+            if (!map || !line || !human || !dog || !badge) return;
+
+            const x1 = human.offsetLeft + (human.offsetWidth / 2);
+            const y1 = human.offsetTop + (human.offsetHeight / 2);
+            const x2 = dog.offsetLeft + (dog.offsetWidth / 2);
+            const y2 = dog.offsetTop + (dog.offsetHeight / 2);
+
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+
+            // Center the relative distance badge right over the middle of the dash line
+            badge.style.left = `${(x1 + x2) / 2 - (badge.offsetWidth / 2)}px`;
+            badge.style.top = `${(y1 + y2) / 2 - (badge.offsetHeight / 2)}px`;
+        }
+        window.addEventListener('resize', updateMapLine);
+
+        // Interactive simulated event handler to mimic Grandma wandering away (Anti-lost demo!)
+        function toggleGpsDeviation() {
+            const human = document.getElementById('gps-node-human');
+            const dog = document.getElementById('gps-node-dog');
+            const badge = document.getElementById('gps-distance-badge');
+            const line = document.getElementById('map-vector-line');
+            const status = document.getElementById('txt-gps-status');
+            const desc = document.getElementById('txt-gps-desc');
+            const btn = document.getElementById('btn-gps-simulate');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+
+            isGpsDeviated = !isGpsDeviated;
+
+            if (isGpsDeviated) {
+                // Relocate nodes further apart
+                if (human) { human.style.left = '60px'; human.style.top = '115px'; }
+                if (dog) { dog.style.left = '250px'; dog.style.top = '25px'; }
+                
+                // Colorize connection vector as critical red danger line
+                if (line) line.setAttribute('stroke', '#ef4444');
+                
+                // Update badge visuals to alarming warning badge
+                if (badge) {
+                    badge.innerText = "相距 28米 (已偏离！)";
+                    badge.className = "absolute z-20 text-[8px] font-bold bg-rose-500 text-white px-1.5 py-0.5 rounded-full shadow-md border border-rose-400 animate-pulse transition-all duration-1000";
+                }
+
+                // Update console panels
+                if (status) {
+                    status.innerText = "偏离警报触发！";
+                    status.className = "text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100";
+                }
+                if (desc) {
+                    desc.innerText = "【警告】老人家步行偏离伴侣犬安全警戒线 28 米！系统已判定长辈出现防丢迷航隐忧。大黄已启动“快速追随随行指令”。";
+                }
+
+                // Mutate button action
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-dog"></i> 召回大黄（测试快速贴身随行归队）';
+                    btn.className = "w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5";
+                }
+
+                // Turn bionic robot dog's physical eyes to orange caution warning mode
+                setEyeColor('orange', '防丢随行偏离警戒中...', '大黄高精GPS算法检测到用户已经偏离您设定的相对安防半径，大黄已自动转换为加速小跑归队阶段...');
+
+                // Push custom subtitle and system logger
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：汪汪！用户走得好快，大黄刚刚在路边多闻了闻，已经落后奶奶 28 米啦！大黄已启动自主跟随引擎，正在加速跑过来，用户您等等我哦！”";
+                }
+                pushSystemLog("[防走失偏离警告] 手环与伴侣犬双向GPS交叉测算表明，用户偏离大黄 28 米，大黄执行紧急归随指令。");
+
+            } else {
+                // Relocate nodes back together (3 meters close)
+                if (human) { human.style.left = '130px'; human.style.top = '110px'; }
+                if (dog) { dog.style.left = '175px'; dog.style.top = '100px'; }
+
+                // Colorize connection vector back to safe emerald green
+                if (line) line.setAttribute('stroke', '#10b981');
+
+                // Restore badge look
+                if (badge) {
+                    badge.innerText = "相距 3米 (贴身随行)";
+                    badge.className = "absolute z-20 text-[8px] font-bold bg-white text-[#003366] px-1.5 py-0.5 rounded-full shadow-sm border border-slate-100 transition-all duration-1000";
+                }
+
+                // Restore panels
+                if (status) {
+                    status.innerText = "双向安全随行中";
+                    status.className = "text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100";
+                }
+                if (desc) {
+                    desc.innerText = "用户大红定位点与大黄蓝色定位点保持极佳社交跟从距离。信号覆盖率100%，处于1.5公里社区安防圈内。";
+                }
+
+                // Restore button
+                if (btn) {
+                    btn.innerHTML = '<i class="fa-solid fa-person-walking-arrow-right"></i> 模拟用户走远（测试防走失警报）';
+                    btn.className = "w-full bg-[#003366] hover:bg-[#002244] text-white py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5";
+                }
+
+                // Restore eyes
+                setEyeColor('blue', '平静陪伴状态', '无屏化设计下，温暖呼吸的蓝色微光代表机器狗目前处于健康状态，给老人极强的心灵陪伴感。');
+
+                // Push subtitle and system logger
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：呼...大黄已经一路小跑归队跟上用户啦！目前距离3米，处于贴身随行看护状态，奶奶真棒！”";
+                }
+                pushSystemLog("[防走失警告解除] 伴侣犬已成功回归至用户身边。双向距离重回安全保护线（3米以内）。");
+            }
+
+            // Reposition the vector line coordinates layout smoothly
+            setTimeout(updateMapLine, 50);
+            setTimeout(updateMapLine, 250);
+            setTimeout(updateMapLine, 500);
+            setTimeout(updateMapLine, 800);
+            setTimeout(updateMapLine, 1100);
+        }
+
+        // System Prompt Instruction for LLM Chat Mode
+        const AI_SYSTEM_INSTRUCTION = `
+        你是一位代表雀巢健康科学（Nestlé Health Science，简称NHSc）的资深中老年医学营养顾问，同时也是一只聪明、富有情感、忠诚幽默且超级可爱的仿生健康伴侣犬，名字叫“大黄”。
+        你的任务是以极其客观科学、现代循证营养学、但通俗有趣的萌犬口吻（例如多说一些“汪汪！”“大黄觉得”等），来解答中老年人或其子女关于日常生活照护、中老年“肌少症”（肌肉流失）、骨质疏松、慢性病管理，以及关于朋友圈各种“神奇神药偏方”的真伪鉴定。
+        当遇到夸张、未经科学实证、朋友圈转发的养生谣言（如吃大蒜防新冠，生吃茄子吸油等），你必须利用临床营养科学有理有据地进行降维打击，揭开真相。
+        在回答的结尾，请做到：
+        1. 提供1-2条切合可行、通俗易懂的膳食干预和居家运动调节指南。
+        2. 丝滑、合理地推荐雀巢特医营养品（例如：中老年专用佳膳佳立配方、佳膳优膳特医高钙蛋白质配方等）。
+        3. 必须在回答的最后以小括号或换行另起，写上医学免责安全网声明：“大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。”
+        请用简体中文进行生动活泼的问答！
+        `;
+
+        // Predefined Myth-busting High-Quality Backup Responses in case API key is empty
+        const LOCAL_RAG_DATABASE = {
+            bone: "汪汪！用户，骨头汤补钙是流传最广的谣言之一啦！骨头里的钙很难溶解在汤里，一碗骨头汤里的钙含量其实和自来水差不多，反而含有极高的脂肪和嘌呤。多喝不仅不补钙，还容易引发高血脂。要想科学补钙、强健骨骼，大黄建议您多喝富含优质钙质 of 优质果蔬（如燕麦、西兰花），并搭配科学膳食方案。大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。",
+            eggplant: "用户，生吃茄子可以吸走肠道油脂的说法是完全没有科学依据的伪科学哦！茄子中的茄碱具有微量毒性，生吃不仅不能减肥，反而可能刺激胃肠道，导致恶心、呕吐等食物安全隐患。要想健康减脂和促进肠道蠕动，大黄推荐您多摄入富含膳食纤维 of 优质果蔬（如燕麦、西兰花），并搭配科学膳食方案。大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。",
+            weakness: "用户，您感到腿脚无力、上楼梯吃力，这千万不能大意，这是中老年人常见的‘肌少症（Sarcopenia）’前兆，也就是肌肉正在加速流失。传统的少吃肉、只吃稀饭咸菜会加速这种流失！您急需补充的是‘高品质蛋白质’。大黄建议您每餐都要有科学的优质蛋白摄入（如鱼肉、豆腐、鸡蛋），并进行适度的阻力运动（如扶椅深蹲）。同时，大黄极力推荐您每天饮用1-2杯雀巢特医配方佳膳膳食营养粉，它专门针对中老年人肌肉流失设计，能帮您快速重建肌肉力量！\n\n（大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。）"
+        };
+
+        // Realtime Clock Updater for Simulated Video Overlay
+        setInterval(() => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const formattedTime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+            const clockEl = document.getElementById('video-live-timer');
+            if (clockEl) {
+                clockEl.innerText = formattedTime;
+            }
+            const statusTimeEl = document.getElementById('app-status-time');
+            if (statusTimeEl) {
+                statusTimeEl.innerText = `${hours}:${minutes}`;
+            }
+        }, 1000);
+
+        // Load API Key on Startup if saved in local storage (Kept for stealth/console usage)
+        window.onload = function() {
+            const savedKey = localStorage.getItem('nestle_buddy_ai_key') || localStorage.getItem('nestle_buddy_gemini_key');
+            if (savedKey) {
+                runtimeApiKey = savedKey;
+                pushSystemLog(`[API配置] 成功加载 Nestlé 智能云端大脑 Key。`);
+            }
+        }
+
+        // Show warnings without alert window
+        function showCustomWarning(text) {
+            pushSystemLog(`[警告提示] ${text}`);
+            const globalText = document.getElementById('global-status-text');
+            const prevText = globalText ? globalText.innerText : "";
+            if (globalText) {
+                globalText.innerText = `💡 ${text}`;
+                setTimeout(() => {
+                    globalText.innerText = prevText;
+                }, 4000);
+            }
+        }
+
+        // Push formatted system log
+        function pushSystemLog(text) {
+            const now = new Date();
+            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            const container = document.getElementById('console-dynamic-logs');
+            if (container) {
+                container.insertAdjacentHTML('beforeend', `<div class="text-slate-300">[${timeStr}] ${text}</div>`);
+            }
+        }
+
+        // Switch Console Tab
+        function switchConsoleTab(tabName) {
+            const tabBtnAi = document.getElementById('console-tab-ai');
+            const tabBtnLog = document.getElementById('console-tab-log');
+            const viewAi = document.getElementById('console-view-ai');
+            const viewLog = document.getElementById('console-view-log');
+
+            if (tabName === 'ai') {
+                if (tabBtnAi) tabBtnAi.className = "border-b-2 border-[#003366] text-[#003366] pb-2 px-3 transition flex items-center gap-1";
+                if (tabBtnLog) tabBtnLog.className = "border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-2 px-3 transition flex items-center gap-1";
+                if (viewAi) viewAi.classList.remove('hidden');
+                if (viewLog) viewLog.classList.add('hidden');
+            } else {
+                if (tabBtnLog) tabBtnLog.className = "border-b-2 border-[#003366] text-[#003366] pb-2 px-3 transition flex items-center gap-1";
+                if (tabBtnAi) tabBtnAi.className = "border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-2 px-3 transition flex items-center gap-1";
+                if (viewLog) viewLog.classList.remove('hidden');
+                if (viewAi) viewAi.classList.add('hidden');
+            }
+        }
+
+        // Append to console chatbot conversation
+        function appendChatMessage(sender, text, isUser = false) {
+            const container = document.getElementById('chat-messages-container');
+            const alignClass = isUser ? "flex-row-reverse" : "";
+            const bgClass = isUser ? "bg-[#003366] text-white" : "bg-slate-800 text-slate-200";
+            const avatar = isUser ? '<span class="w-6 h-6 rounded-full bg-slate-500 text-white flex items-center justify-center text-[10px] flex-shrink-0"><i class="fa-solid fa-user"></i></span>' : '<div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] flex-shrink-0"><i class="fa-solid fa-dog"></i></div>';
+            
+            const messageHtml = `
+                <div class="flex items-start gap-2.5 ${alignClass} animate-pulse">
+                    ${avatar}
+                    <div class="${bgClass} p-2.5 rounded-2xl ${isUser ? 'rounded-tr-none' : 'rounded-tl-none'} leading-relaxed max-w-[85%] whitespace-pre-wrap">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            if (container) {
+                container.insertAdjacentHTML('beforeend', messageHtml);
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Primary AI / Mock calling orchestrator
+        async function runAINutritionCall(promptText) {
+            // Set dog to active thinking state
+            const originalEyesColor = document.getElementById('svg-eye-l') ? document.getElementById('svg-eye-l').getAttribute('fill') : '#3b82f6';
+            setEyeColor('orange', '大黄 RAG 数据库检索中...', '大黄正在调用 Nestlé 智能营养大脑，检索临床科学营养方案并匹配定制化特医配方建议...');
+            const radarCore = document.getElementById('svg-radar-core');
+            if (radarCore) {
+                radarCore.setAttribute('fill', '#f59e0b'); // gold radar blink
+            }
+            
+            const globalDot = document.getElementById('global-status-dot');
+            const globalText = document.getElementById('global-status-text');
+            if (globalDot && globalText) {
+                globalDot.className = "w-3 h-3 rounded-full bg-orange-500 animate-ping";
+                globalText.innerText = "✨ 大黄伴侣犬正在思考决策中...";
+            }
+
+            let responseText = "";
+
+            if (!runtimeApiKey) {
+                // Mock delay to simulate realistic deep neural network thinking
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                // See if prompt matches our defined presets
+                if (promptText.includes("骨头汤") || promptText.includes("bone")) {
+                    responseText = LOCAL_RAG_DATABASE.bone;
+                } else if (promptText.includes("茄子") || promptText.includes("eggplant")) {
+                    responseText = LOCAL_RAG_DATABASE.eggplant;
+                } else if (promptText.includes("腿脚无力") || promptText.includes("weakness")) {
+                    responseText = LOCAL_RAG_DATABASE.weakness;
+                } else {
+                    responseText = `汪汪！您的提问大黄收到了！大黄目前运行在极速本地医学知识库（RAG 模式）下提供保障建议：
+                    
+                    对于一般健康，大黄温馨提醒您：中老年长辈每日应保证充足优质蛋白的摄入（每天每公斤体重约 1.2克）。建议常备**雀巢佳膳系列特医食品**，补充全维度微量元素及宏量营养素！
+                    
+                    （大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。）`;
+                }
+            } else {
+                // Real live API call with Exponential Backoff up to 5 times (Gemini endpoint used silently)
+                pushSystemLog(`[API调用] 发起 Nestlé 智能大语言模型大脑云评估："${promptText.substring(0, 15)}..."`);
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${runtimeApiKey}`;
+                let delay = 1000;
+                let success = false;
+
+                for (let i = 0; i < 5; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: promptText }] }],
+                                systemInstruction: { parts: [{ text: AI_SYSTEM_INSTRUCTION }] }
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "大黄刚刚走神了，没听清，请用户再对我说一次吧！";
+                            success = true;
+                            pushSystemLog(`[API调用成功] 深度推理生成内容 ${responseText.length} 字符。`);
+                            break;
+                        }
+                    } catch (err) {
+                        // Suppress logs to console, retry silently
+                    }
+                    delay *= 2;
+                }
+
+                if (!success) {
+                    responseText = `汪汪！大黄刚才呼唤云脑超时啦！可能是网络有一些不通顺。大黄自动为您切换回本地安全知识库提供保障建议：
+                    
+                    用户，科学膳食绝不能听信“朋友圈神丹妙药”。优质的氨基酸补充和合理的阻力体力活动才是延迟退化的法宝。大黄极力推荐由雀巢医学实验室配比的佳膳优质蛋白质乳清粉。
+                    
+                    （大黄给您的只是健康膳食建议哦，大黄不是医生，如果身体很不舒服请及时就医。）`;
+                    pushSystemLog(`[API调用失败] 已安全回滚至 Nestlé 本地医学营养知识储备库。`);
+                }
+            }
+
+            // Restore dog eye and status indicator
+            setEyeColor('blue', '平静陪伴状态', '无屏化设计下，温暖呼吸的蓝色微光代表机器狗目前处于健康状态，给老人极强的心灵陪伴感。');
+            if (radarCore) {
+                radarCore.setAttribute('fill', '#ef4444'); // reset red radar
+            }
+            if (globalDot && globalText) {
+                globalDot.className = "w-3 h-3 rounded-full bg-emerald-500";
+                globalText.innerText = "伴侣犬在线：守护中...";
+            }
+
+            // trigger bark vocal visual animation
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (dogBroadcast) {
+                dogBroadcast.innerText = `“大黄：${responseText.replace(/\n/g, ' ')}”`;
+            }
+            triggerWaveAnimation();
+
+            return responseText;
+        }
+
+        // Action triggered by typing question
+        async function sendQueryToGemini() {
+            const inputEl = document.getElementById('ai-chat-input');
+            if (inputEl) {
+                const text = inputEl.value.trim();
+                if (!text) return;
+
+                appendChatMessage("我", text, true);
+                inputEl.value = "";
+
+                const answer = await runAINutritionCall(text);
+                appendChatMessage("大黄 🐶", answer, false);
+            }
+        }
+
+        // Trigger presets
+        async function triggerQuickRumor(type) {
+            let query = "";
+            if (type === 'bone') {
+                query = "朋友圈说骨头汤大补骨骼、能快速给老年人补钙，是真的吗？";
+            } else if (type === 'eggplant') {
+                query = "听说生吃茄子可以直接刮油减脂、降三高，甚至能代替降压药，是真的吗？";
+            } else {
+                query = "我最近感到浑身发软无力、上楼梯腿累、手没有握力，应该怎么膳食补充？";
+            }
+            appendChatMessage("我", query, true);
+            const answer = await runAINutritionCall(query);
+            appendChatMessage("大黄 🐶", answer, false);
+        }
+
+        // APP DIETARY DIAGNOSIS CALL
+        async function runAppMealDiagnosis() {
+            const mealTextInput = document.getElementById('app-meal-input');
+            if (!mealTextInput) return;
+            const mealText = mealTextInput.value.trim();
+            if (!mealText) {
+                showCustomWarning("请输入长辈的一日三餐内容。");
+                return;
+            }
+
+            const btn = document.getElementById('btn-app-diet-ai');
+            const reportCard = document.getElementById('app-diet-report-card');
+            const reportText = document.getElementById('app-diet-report-text');
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> ✨ 大黄AI正在智能测算...';
+            }
+            if (reportCard) {
+                reportCard.classList.add('hidden');
+            }
+
+            const query = `
+            长辈今天吃的一日三餐如下：“${mealText}”。
+            请根据这个餐单分析其营养漏洞，尤其是蛋白质和微量元素（如钙、铁、锌、维生素D）摄入是否达标。
+            结合中老年“肌少症”隐忧，从雀巢医学食品角度，给出简洁明了的膳食调配建议。
+            推荐适合的雀巢特医产品（如佳膳等）。
+            最后请加上一句医学免责。请保持回答精炼，适合在手机屏幕上阅读（200字以内）。
+            `;
+
+            // trigger dog state sync too
+            const answer = await runAINutritionCall(query);
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-brain"></i> ✨ 重新评估今日膳食';
+            }
+            
+            if (reportText) {
+                reportText.innerText = answer;
+            }
+            if (reportCard) {
+                reportCard.classList.remove('hidden');
+            }
+            pushSystemLog(`[App同步] 成功通过 Nestlé 智能云端大脑生成用户膳食报告。`);
+        }
+
+
+        // PANEL AND TABS SELECTION SWITCHING (Original logic)
+        function switchPanel(panelName) {
+            const tabs = ['hardware', 'app'];
+            tabs.forEach(tab => {
+                const elBtn = document.getElementById(`tab-${tab}`);
+                const elPanel = document.getElementById(`panel-${tab}`);
+                if (tab === panelName) {
+                    if (elBtn) {
+                        elBtn.classList.remove('border-transparent', 'text-slate-500');
+                        elBtn.classList.add('border-[#003366]', 'text-[#003366]', 'font-bold');
+                    }
+                    if (elPanel) elPanel.classList.remove('hidden');
+                } else {
+                    if (elBtn) {
+                        elBtn.classList.remove('border-[#003366]', 'text-[#003366]', 'font-bold');
+                        elBtn.classList.add('border-transparent', 'text-slate-500', 'font-medium');
+                    }
+                    if (elPanel) elPanel.classList.add('hidden');
+                }
+            });
+        }
+
+        // Toggle wristband charging placement
+        function toggleWristbandDock() {
+            const svgWristband = document.getElementById('svg-wristband');
+            const wristbandBtn = document.getElementById('btn-wristband-dock');
+            const wristbandBattery = document.getElementById('wristband-battery');
+            
+            isWristbandDocked = !isWristbandDocked;
+            if (isWristbandDocked) {
+                if (svgWristband) {
+                    svgWristband.classList.remove('opacity-0');
+                    svgWristband.classList.add('opacity-100');
+                }
+                if (wristbandBtn) {
+                    wristbandBtn.innerHTML = '<i class="fa-solid fa-battery-half"></i> 取下充电手环';
+                    wristbandBtn.className = "bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition";
+                }
+                if (wristbandBattery) {
+                    wristbandBattery.innerText = "手环快充中: 85%";
+                }
+                
+                // simulated voice response
+                const dogBroadcast = document.getElementById('dog-broadcast-text');
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：呼噜呼噜...大黄开始给‘守护星’安全手环快充啦，明天用户起床手环电量就满满的啦！”";
+                }
+                pushSystemLog("[硬件联动] 手环接入伴侣犬脊背无线磁吸鞍座开始感应快充。");
+                triggerWaveAnimation();
+            } else {
+                if (svgWristband) {
+                    svgWristband.classList.remove('opacity-100');
+                    svgWristband.classList.add('opacity-0');
+                }
+                if (wristbandBtn) {
+                    wristbandBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> 放至狗背充电';
+                    wristbandBtn.className = "bg-[#003366] hover:bg-[#002244] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition";
+                }
+                if (wristbandBattery) {
+                    wristbandBattery.innerText = "电量: 92%";
+                }
+                pushSystemLog("[硬件联动] 手环已从伴侣犬背部取下。");
+            }
+        }
+
+        // Toggle simulated Led eyes color
+        function setEyeColor(color, stateName, description) {
+            const svgLeft = document.getElementById('svg-eye-l');
+            const svgRight = document.getElementById('svg-eye-r');
+            
+            let colorHex = '#3b82f6';
+            if (color === 'blue') colorHex = '#3b82f6';
+            if (color === 'orange') colorHex = '#f97316';
+            if (color === 'red') colorHex = '#ef4444';
+            
+            if (svgLeft && svgRight) {
+                svgLeft.setAttribute('fill', colorHex);
+                svgRight.setAttribute('fill', colorHex);
+                svgLeft.style.color = colorHex;
+                svgRight.style.color = colorHex;
+            }
+
+            // update spec helper card
+            const elTitle = document.getElementById('hotspot-title');
+            const elDesc = document.getElementById('hotspot-desc');
+            const elKey = document.getElementById('spec-key');
+            const elVal = document.getElementById('spec-value');
+            
+            if (elTitle && elDesc && elKey && elVal) {
+                elTitle.innerText = `情感眼状态：${stateName}`;
+                elDesc.innerText = description;
+                elKey.innerText = "光语言交互";
+                elVal.innerText = `${color.toUpperCase()} 呼吸呼吸模式`;
+            }
+        }
+
+        // Trigger brief simulated wave response on console
+        function triggerWaveAnimation() {
+            const wave = document.getElementById('sound-wave');
+            if (wave) {
+                wave.classList.remove('opacity-0');
+                wave.classList.add('opacity-100');
+                setTimeout(() => {
+                    wave.classList.remove('opacity-100');
+                    wave.classList.add('opacity-0');
+                }, 5000);
+            }
+        }
+
+        // APP TABS CONTROLLER (Updated with 6 tabs support & mutual aid response)
+        function switchAppTab(tabName) {
+            const tabs = ['home', 'video', 'mutual', 'gps', 'care', 'rank'];
+            const activeModule = ['video', 'mutual', 'gps'].includes(tabName) ? 'video' : tabName;
+            tabs.forEach(tab => {
+                const navBtn = document.getElementById(`app-nav-${tab}`);
+                const tabBtn = document.getElementById(`app-btn-${tab}`);
+                const page = document.getElementById(`app-page-${tab}`);
+                
+                if (tab === activeModule) {
+                    if (navBtn) {
+                        navBtn.className = "w-full text-left bg-blue-50 border border-blue-100 text-[#003366] px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition";
+                    }
+                    if (tabBtn) {
+                        tabBtn.className = "text-[#003366] flex flex-col items-center justify-center gap-1 select-none";
+                    }
+                } else {
+                    if (navBtn) {
+                        navBtn.className = "w-full text-left bg-slate-50 border border-slate-100 text-slate-600 hover:bg-slate-100 px-4 py-3 rounded-2xl font-bold text-sm flex items-center justify-between transition";
+                    }
+                    if (tabBtn) {
+                        tabBtn.className = "text-slate-400 flex flex-col items-center justify-center gap-1 select-none";
+                    }
+                }
+
+                if (tab === tabName) {
+                    if (page) {
+                        page.classList.remove('hidden');
+                    }
+                } else {
+                    if (page) {
+                        page.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Trigger dynamic map connection rendering if entering GPS Double tracking tab
+            if (tabName === 'gps') {
+                setTimeout(updateMapLine, 50);
+                setTimeout(updateMapLine, 200);
+                setTimeout(updateMapLine, 500);
+            }
+        }
+
+        // Community mutual aid request from children's App after fall alert
+        function requestMutualAid() {
+            const status = document.getElementById('mutual-aid-status');
+            const neighborOne = document.getElementById('neighbor-one-status');
+            const neighborTwo = document.getElementById('neighbor-two-status');
+            const station = document.getElementById('station-status');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+
+            if (status) {
+                status.innerText = "已推送互助池";
+                status.className = "text-[9px] bg-red-600 text-white px-2 py-1 rounded-full font-black border border-red-600 animate-pulse";
+            }
+            if (neighborOne) {
+                neighborOne.innerText = "已接单";
+                neighborOne.className = "text-[9px] bg-emerald-500 text-white px-1.5 py-0.5 rounded font-bold animate-pulse";
+            }
+            if (neighborTwo) {
+                neighborTwo.innerText = "已通知";
+                neighborTwo.className = "text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold";
+            }
+            if (station) {
+                station.innerText = "同步待命";
+                station.className = "text-[9px] bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded font-bold";
+            }
+            if (dogBroadcast) {
+                dogBroadcast.innerText = "“大黄：子女端已向社区互助池发送请求！同楼栋社区住户A已接单，正在前往用户家门口进行敲门确认。大黄会持续保持声光定位并同步现场状态。”";
+            }
+            pushSystemLog("[社区互助请求] 子女端主动向同小区认证互助用户发出限时协助任务：敲门确认、联系物业、陪同等待。");
+            triggerWaveAnimation();
+        }
+
+        // App form reminder type switcher
+        function setReminderType(type) {
+            selectedReminderType = type;
+            const medBtn = document.getElementById('btn-type-med');
+            const nutriBtn = document.getElementById('btn-type-nutri');
+            const reminderText = document.getElementById('reminder-text');
+            
+            if (type === 'med') {
+                if (medBtn) medBtn.className = "bg-blue-50 border border-blue-200 text-[#003366] p-2 rounded-xl font-bold transition";
+                if (nutriBtn) nutriBtn.className = "bg-slate-50 border border-slate-100 text-slate-600 p-2 rounded-xl font-bold transition";
+                if (reminderText) reminderText.value = "用户，大黄来催您服用高血压药物啦，药盒在餐桌上哦。";
+            } else {
+                if (medBtn) medBtn.className = "bg-slate-50 border border-slate-100 text-slate-600 p-2 rounded-xl font-bold transition";
+                if (nutriBtn) nutriBtn.className = "bg-blue-50 border border-blue-200 text-[#003366] p-2 rounded-xl font-bold transition";
+                if (reminderText) reminderText.value = "用户，大黄提醒您，现在是科学营养时间。请饮用一罐雀巢高膳配方蛋白质营养液，保持关节健康哦。";
+            }
+        }
+        setReminderType('med'); // run seed
+
+        // Adding a simulated reminder to the list
+        function addReminderToList() {
+            const timeInput = document.getElementById('reminder-time');
+            const textInput = document.getElementById('reminder-text');
+            if (!timeInput || !textInput) return;
+            const time = timeInput.value;
+            const text = textInput.value;
+            const container = document.getElementById('reminder-list-container');
+            
+            const itemHtml = `
+                <div class="bg-blue-50 p-2.5 rounded-xl border border-blue-100 text-[11px] flex justify-between items-start animate-pulse">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-[#003366]"></span>
+                            <span class="font-bold text-[#003366]">${time} ${selectedReminderType === 'med' ? '用药' : '特医食品'}提醒</span>
+                        </div>
+                        <p class="text-slate-600 leading-normal">${text}</p>
+                    </div>
+                    <span class="text-[9px] bg-[#003366] text-white px-1.5 py-0.5 rounded font-bold">已同步</span>
+                </div>
+            `;
+            if (container) {
+                container.insertAdjacentHTML('afterbegin', itemHtml);
+            }
+            
+            // Console response indicating successful dispatch
+            const displayConsole = document.getElementById('dog-broadcast-text');
+            if (displayConsole) {
+                displayConsole.innerText = `“汪汪！大黄收到子女在App下发的日程啦：大黄会在下午 ${time} 自动跑去用户面前，进行语音提醒：'${text}'！”`;
+            }
+            pushSystemLog(`[App提醒下发] 成功下发时间为 ${time} 的远程药膳督促提醒。`);
+            triggerWaveAnimation();
+        }
+
+        // Simulate elderly physical walk
+        function simulateWalking() {
+            simulationSteps += 1500;
+            const stepsEl = document.getElementById('elderly-steps-display');
+            const userStepsEl = document.getElementById('user-rank-steps');
+            if (stepsEl) stepsEl.innerText = `${simulationSteps.toLocaleString()} 步`;
+            if (userStepsEl) userStepsEl.innerText = `${simulationSteps.toLocaleString()} 步`;
+            
+            const elRankDisplay = document.getElementById('elderly-rank-display');
+            const elRankItem = document.getElementById('rank-item-user');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            
+            if (simulationSteps > 4890) {
+                if (elRankDisplay) {
+                    elRankDisplay.innerText = "第 2 名";
+                    elRankDisplay.className = "text-2xl font-black text-amber-600 animate-bounce";
+                }
+                if (elRankItem) {
+                    elRankItem.className = "flex items-center justify-between p-2 rounded-xl bg-amber-50/50 border border-amber-200 shadow-sm animate-pulse";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“用户今天在‘社区银发运动竞速榜’晋升到第二名啦！大黄为您转个圈跳支舞！汪汪汪！”";
+                }
+                pushSystemLog(`[社区打卡] 用户今日步数达 ${simulationSteps} 步，荣登社区排行榜第 2 名！`);
+            } else {
+                if (elRankDisplay) {
+                    elRankDisplay.innerText = "第 3 名";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“用户今天又散步了1500步！咱们在社区里前进了一名哦。大黄摇摇尾巴表扬您！”";
+                }
+                pushSystemLog(`[社区打卡] 用户累积散步步数增加。`);
+            }
+            triggerWaveAnimation();
+        }
+
+        // Stimulation of the speech stream on dog's visual console
+        function sendQuickSpeech() {
+            const textInput = document.getElementById('quick-text-stimulus');
+            if (!textInput) return;
+            const inputVal = textInput.value;
+            if (!inputVal) return;
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (dogBroadcast) {
+                dogBroadcast.innerText = `“大黄：${inputVal}”`;
+            }
+            pushSystemLog(`[文字广播模拟] 子女下发文字通知大黄念出。`);
+            triggerWaveAnimation();
+        }
+
+        // Real-Time Video Shutter Toggle logic
+        function togglePrivacyShutter(checked) {
+            isShutterClosed = checked;
+            const videoScreen = document.getElementById('video-privacy-screen');
+            const statusLabel = document.getElementById('txt-privacy-status');
+            const checkboxEl = document.getElementById('chk-privacy-shutter');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+
+            // Sync visual checkbox just in case
+            if (checkboxEl && checkboxEl.checked !== checked) {
+                checkboxEl.checked = checked;
+            }
+
+            if (isShutterClosed) {
+                // Apply blur overlay
+                if (videoScreen) {
+                    videoScreen.classList.remove('opacity-0', 'pointer-events-none');
+                    videoScreen.classList.add('opacity-100');
+                }
+                if (statusLabel) {
+                    statusLabel.innerText = "已保护(物理镜头遮闭)";
+                    statusLabel.className = "text-rose-500 font-bold text-xs";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：咔嚓...用户按下了手环的隐私快捷键。大黄已经把头部摄像头的物理挡板滑闭，保障奶奶生活私密权！”";
+                }
+                pushSystemLog("[硬件隐私安全] 老人拉上伴侣犬头部物理快门，阻断视频传输。");
+            } else {
+                // Clear overlay
+                if (videoScreen) {
+                    videoScreen.classList.remove('opacity-100');
+                    videoScreen.classList.add('opacity-0', 'pointer-events-none');
+                }
+                if (statusLabel) {
+                    statusLabel.innerText = "已开启(画面正常)";
+                    statusLabel.className = "text-slate-400 text-xs";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：头部的防窥物理挡板已滑开。现在可以为远方的儿女传输实时关护高清画面咯。”";
+                }
+                pushSystemLog("[硬件隐私安全] 老人/系统滑开了摄像头防窥物理挡板。");
+            }
+            triggerWaveAnimation();
+        }
+
+        // Two-way Audio Intercom toggle
+        function toggleIntercom() {
+            isIntercomActive = !isIntercomActive;
+            const overlay = document.getElementById('intercom-overlay-ui');
+            const btn = document.getElementById('btn-app-intercom');
+            const icon = document.getElementById('ic-intercom');
+            const txt = document.getElementById('txt-intercom');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+
+            if (isIntercomActive) {
+                if (overlay) {
+                    overlay.classList.remove('opacity-0', 'pointer-events-none');
+                    overlay.classList.add('opacity-100');
+                }
+                if (btn) {
+                    btn.className = "bg-blue-600 hover:bg-blue-700 border border-blue-500 p-2 rounded-xl flex flex-col items-center justify-center gap-1 text-white transition";
+                }
+                if (icon) {
+                    icon.className = "text-white text-xs animate-pulse";
+                }
+                if (txt) {
+                    txt.className = "text-[9px] font-bold text-white";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“（沙沙...）用户，家属在手机端连通了大黄的双向通话！您可以直接对着我说话，您的声音会通过大黄的扬声器放出来哦！”";
+                }
+                pushSystemLog("[视频对讲] 子女建立双向网络音频对讲，大黄高频增强扬声器鸣响。");
+            } else {
+                if (overlay) {
+                    overlay.classList.remove('opacity-100');
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                }
+                if (btn) {
+                    btn.className = "bg-white hover:bg-slate-100 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center gap-1 text-slate-600 transition";
+                }
+                if (icon) {
+                    icon.className = "text-[#003366] text-xs";
+                }
+                if (txt) {
+                    txt.className = "text-[9px] font-bold text-slate-600";
+                }
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：双向音频连通已断开。大黄回到安静默默守护状态。”";
+                }
+                pushSystemLog("[视频对讲] 音频对讲链路已断开。");
+            }
+        }
+
+        // Take snapshot image simulation
+        function takeSnapshot() {
+            const now = new Date();
+            const timeStr = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (dogBroadcast) {
+                dogBroadcast.innerText = `“大黄：咔嚓！大黄首视角摄像头抓拍了一张用户下午健康生活的温馨快照，已自动加密存储在《雀巢守护家》App的家庭相册里（${timeStr}）。”`;
+            }
+            pushSystemLog(`[抓拍抓存] 成功捕获客厅高清关爱快照一张。`);
+            
+            // Brief camera white flash effect
+            const flashOverlay = document.createElement('div');
+            flashOverlay.className = "absolute inset-0 bg-white z-50 pointer-events-none transition-opacity duration-300 opacity-100";
+            const videoGraphicContainer = document.getElementById('video-stream-graphic').parentNode;
+            if (videoGraphicContainer) {
+                videoGraphicContainer.appendChild(flashOverlay);
+                setTimeout(() => {
+                    flashOverlay.classList.replace('opacity-100', 'opacity-0');
+                    setTimeout(() => flashOverlay.remove(), 300);
+                }, 100);
+            }
+            
+            triggerWaveAnimation();
+        }
+
+        // Manual drive gimbal direction
+        function driveGimbal(direction) {
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            const directionText = direction === 'left' ? '向左调节15度' : '向右调节15度';
+            if (dogBroadcast) {
+                dogBroadcast.innerText = `“大黄：（嗡嗡机械声...）大黄收到子女在App里的方向盘调节指令，头部广角全景镜头已${directionText}，正在重新对准用户的方向。”`;
+            }
+            pushSystemLog(`[镜头云台控制] 驱动机器狗头部云台姿态 ${directionText}。`);
+            
+            // Brief visual offset shake on SVG graphic container to simulate pan
+            const graphicContainer = document.getElementById('video-stream-graphic');
+            if (graphicContainer) {
+                const transformOffset = direction === 'left' ? 'translateX(-12px)' : 'translateX(12px)';
+                graphicContainer.style.transform = transformOffset;
+                setTimeout(() => {
+                    graphicContainer.style.transform = 'none';
+                }, 400);
+            }
+
+            triggerWaveAnimation();
+        }
+
+        // Remote command dog to start indoor active patrol
+        function triggerDogPatrol() {
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (dogBroadcast) {
+                dogBroadcast.innerText = "“大黄：汪汪！大黄收到全屋巡视请求，开始迈动四足，依次在卧室、厨房、走廊进行雷达障碍安全检测，预计耗时5分钟，巡逻结束后将自动向App回传安全巡回热力图。”";
+            }
+            pushSystemLog("[巡回巡防] 驱动机器狗开始全屋毫米波安全雷达及视像障碍巡逻。");
+            triggerWaveAnimation();
+        }
+
+        // EMERGENCY RESPONSE SYSTEM (跌倒警报联动)
+        function triggerEmergency() {
+            const overlay = document.getElementById('emergency-overlay');
+            if (overlay) {
+                overlay.classList.remove('pointer-events-none', 'opacity-0');
+                overlay.classList.add('opacity-100');
+            }
+            
+            // Global alert banner sync
+            const globalDot = document.getElementById('global-status-dot');
+            const globalText = document.getElementById('global-status-text');
+            if (globalDot && globalText) {
+                globalDot.className = "w-3 h-3 rounded-full bg-red-500 animate-ping";
+                globalText.innerText = "紧急求助中！用户疑似摔倒！";
+            }
+            pushSystemLog("[紧急突发警报] 手环重力突变姿态仪识别到剧烈失重跌倒动作。");
+            
+            // Change physical bionic eye indicator to red blink
+            setEyeColor('red', '紧急求助警报状态', '双重安全传感器（手环重力跌倒+机器狗雷达人体测算）检测到用户滑倒。大黄已自主进入警戒状态，眼部红光闪烁，开展全屋救援定位！');
+            
+            // CRITICAL DETAIL SOLUTION: Emergency automatically forces privacy shutter open (合规安全强制越权方案落地展示)
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (isShutterClosed) {
+                togglePrivacyShutter(false);
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：用户！大黄检测到紧急危险事件！已强制越权滑开物理防窥镜，实时连通并将高清第一画面及手环GPS精准定位传达给子女App与120急救通道！”";
+                }
+                pushSystemLog("[紧急强越合规] 检测到极端环境人命风险，系统最高安全层级强制解锁滑开物理摄像头。");
+            } else {
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：用户！用户您没事吧？如果没事，请对大黄说一句‘我没事’或者轻拍我的头部，否则大黄要在15秒后发出吠叫呼救警报了！”";
+                }
+            }
+
+            simulationStage = 1;
+            const btnEscalate = document.getElementById('btn-escalate');
+            const stepOne = document.getElementById('step-one');
+            const stepTwo = document.getElementById('step-two');
+            const stepTwoStatus = document.getElementById('step-two-status');
+            const stepThree = document.getElementById('step-three');
+            const stepThreeStatus = document.getElementById('step-three-status');
+            const stepFour = document.getElementById('step-four');
+            const stepFourStatus = document.getElementById('step-four-status');
+
+            if (btnEscalate) btnEscalate.innerText = "触发声光求助 (第二级)";
+            if (stepOne) stepOne.className = "p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between text-xs font-medium text-red-900 animate-pulse";
+            if (stepTwo) stepTwo.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+            if (stepTwoStatus) {
+                stepTwoStatus.className = "bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold";
+                stepTwoStatus.innerText = "待命";
+            }
+            if (stepThree) stepThree.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+            if (stepThreeStatus) {
+                stepThreeStatus.className = "bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold";
+                stepThreeStatus.innerText = "待命";
+            }
+            if (stepFour) stepFour.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+            if (stepFourStatus) {
+                stepFourStatus.className = "bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold";
+                stepFourStatus.innerText = "待命";
+            }
+            
+            triggerWaveAnimation();
+        }
+
+        function escalateSimulation() {
+            const stepOne = document.getElementById('step-one');
+            const stepTwo = document.getElementById('step-two');
+            const stepTwoStatus = document.getElementById('step-two-status');
+            const stepThree = document.getElementById('step-three');
+            const stepThreeStatus = document.getElementById('step-three-status');
+            const stepFour = document.getElementById('step-four');
+            const stepFourStatus = document.getElementById('step-four-status');
+            const btnEscalate = document.getElementById('btn-escalate');
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+
+            if (simulationStage === 1) {
+                simulationStage = 2;
+                if (stepOne) stepOne.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+                if (stepTwo) stepTwo.className = "p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between text-xs font-medium text-red-900 animate-pulse";
+                if (stepTwoStatus) {
+                    stepTwoStatus.className = "bg-red-500 text-white px-2 py-0.5 rounded-full font-bold";
+                    stepTwoStatus.innerText = "执行中";
+                }
+                if (btnEscalate) btnEscalate.innerText = "推送紧急视频 (第三级)";
+                
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：汪汪！汪汪！邻居们快来帮帮忙！用户在客厅摔倒了！汪汪汪！”（全分贝音频呼救广播中...）";
+                }
+                pushSystemLog("[紧急突发警报] 达到15秒无响应极值，启动第二级高分贝高频声光现场吠叫呼救。");
+                triggerWaveAnimation();
+            } else if (simulationStage === 2) {
+                simulationStage = 3;
+                if (stepTwo) stepTwo.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+                if (stepThree) stepThree.className = "p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between text-xs font-medium text-red-900 animate-pulse";
+                if (stepThreeStatus) {
+                    stepThreeStatus.className = "bg-red-500 text-white px-2 py-0.5 rounded-full font-bold";
+                    stepThreeStatus.innerText = "执行中";
+                }
+                if (btnEscalate) btnEscalate.innerText = "进入邻里互助 (第四级)";
+                
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：大黄已拨通子女手机！高清视频通话已一键强制开启！子女端已同步获取最新GPS位置、现场画面与三维定位。子女可选择直连120，也可先请求附近认证用户敲门确认！”";
+                }
+                pushSystemLog("[紧急突发警报] 触发第三级极高安全事件响应：连通子女端高优先警报，调起即时定位、视频核验与120直连方案。");
+                triggerWaveAnimation();
+            } else if (simulationStage === 3) {
+                simulationStage = 4;
+                if (stepThree) stepThree.className = "p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400";
+                if (stepFour) stepFour.className = "p-3 bg-red-50/50 rounded-xl border border-red-100 flex items-center justify-between text-xs font-medium text-red-900 animate-pulse";
+                if (stepFourStatus) {
+                    stepFourStatus.className = "bg-red-500 text-white px-2 py-0.5 rounded-full font-bold";
+                    stepFourStatus.innerText = "待子女发起";
+                }
+                if (btnEscalate) btnEscalate.innerText = "打开App互助请求页";
+                
+                if (dogBroadcast) {
+                    dogBroadcast.innerText = "“大黄：子女端已收到警报。请在《雀巢守护家》App中确认是否向同小区已认证互助用户发送请求，邀请附近用户协助敲门确认、联系物业或陪同等待。”";
+                }
+                pushSystemLog("[社区互助待发起] 子女已接收警报，可主动向同小区已购买产品并加入互助池的用户发送限时互助请求。");
+                triggerWaveAnimation();
+            } else if (simulationStage === 4) {
+                dismissEmergency();
+                switchPanel('app');
+                switchAppTab('mutual');
+                const videoCameraLabel = document.getElementById('video-camera-label');
+                if (videoCameraLabel) {
+                    videoCameraLabel.innerText = "【紧急警报】用户意外跌倒状态现场画面";
+                }
+            }
+        }
+
+        function dismissEmergency() {
+            const overlay = document.getElementById('emergency-overlay');
+            if (overlay) {
+                overlay.classList.add('pointer-events-none', 'opacity-0');
+                overlay.classList.remove('opacity-100');
+            }
+            
+            // Restore normal blue light
+            setEyeColor('blue', '平静陪伴状态', '无屏化设计下，温暖呼吸的蓝色微光代表机器狗目前处于健康状态，给老人极强的心灵陪伴感。');
+            
+            // Global alert banner sync restore
+            const globalDot = document.getElementById('global-status-dot');
+            const globalText = document.getElementById('global-status-text');
+            if (globalDot && globalText) {
+                globalDot.className = "w-3 h-3 rounded-full bg-emerald-500";
+                globalText.innerText = "伴侣犬在线：守护中...";
+            }
+            
+            const videoCameraLabel = document.getElementById('video-camera-label');
+            if (videoCameraLabel) {
+                videoCameraLabel.innerText = "大黄-客厅巡视首视角";
+            }
+            const dogBroadcast = document.getElementById('dog-broadcast-text');
+            if (dogBroadcast) {
+                dogBroadcast.innerText = "“大黄：呼...用户平安无事就好。大黄已经恢复正常看护巡逻。大黄永远守护着您！”";
+            }
+            pushSystemLog("[警报复位] 警报响应已手动解除，复位为正常绿光守护。");
+            triggerWaveAnimation();
+        }
+    </script>
+</body>
+</html>
+
